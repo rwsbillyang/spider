@@ -1,0 +1,320 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="BranchesTreeState">
+    <expand>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="LOCAL_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:origin" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+    </expand>
+    <select />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="8c20b7a0-ccaf-4dcf-ac00-a03f6a5dbce9" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/app/mainApp/cmd.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/fileProxy/resources/logback.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/fileProxy/resources/logback.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/mainApp/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/app/mainApp/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/mainApp/nginx_remote_server.conf.part" beforeDir="false" afterPath="$PROJECT_DIR$/app/mainApp/nginx_remote_server.conf.part" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/activity/gradle.properties" beforeDir="false" afterPath="$PROJECT_DIR$/modules/activity/gradle.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/common/src/IUser.kt" beforeDir="false" afterPath="$PROJECT_DIR$/modules/common/src/IUser.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/common/src/IWechatNotifier.kt" beforeDir="false" afterPath="$PROJECT_DIR$/modules/common/src/IWechatNotifier.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/questionnaire/gradle.properties" beforeDir="false" afterPath="$PROJECT_DIR$/modules/questionnaire/gradle.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/wxWork/src/chatMsg/ChatMsgModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/modules/wxWork/src/chatMsg/ChatMsgModel.kt" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ExternalProjectsData">
+    <projectState path="$PROJECT_DIR$">
+      <ProjectState />
+    </projectState>
+    <projectState path="$PROJECT_DIR$/app/chatArchive">
+      <ProjectState />
+    </projectState>
+    <projectState path="$PROJECT_DIR$/modules/sale">
+      <ProjectState />
+    </projectState>
+    <projectState path="$PROJECT_DIR$/modules/solo">
+      <ProjectState />
+    </projectState>
+    <projectState path="$PROJECT_DIR$/modules/stats">
+      <ProjectState />
+    </projectState>
+    <projectState path="$PROJECT_DIR$/modules/wxOfficialAccount">
+      <ProjectState />
+    </projectState>
+    <projectState path="$PROJECT_DIR$/modules/wxWork">
+      <ProjectState />
+    </projectState>
+  </component>
+  <component name="ExternalProjectsManager">
+    <system id="GRADLE">
+      <state>
+        <task path="$PROJECT_DIR$/app/mainApp">
+          <activation />
+        </task>
+        <task path="$PROJECT_DIR$/app/chatArchive">
+          <activation />
+        </task>
+        <projects_view>
+          <tree_state>
+            <expand>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="youke" type="f1a62948:ProjectNode" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="youke" type="f1a62948:ProjectNode" />
+                <item name="user" type="2d1252cf:ModuleNode" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="youke" type="f1a62948:ProjectNode" />
+                <item name="user" type="2d1252cf:ModuleNode" />
+                <item name="Dependencies" type="6de06a37:ExternalSystemViewDefaultContributor$MyDependenciesNode" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="youke" type="f1a62948:ProjectNode" />
+                <item name="user" type="2d1252cf:ModuleNode" />
+                <item name="Dependencies" type="6de06a37:ExternalSystemViewDefaultContributor$MyDependenciesNode" />
+                <item name="runtimeClasspath" type="62daadca:ExternalSystemViewDefaultContributor$DependencyScopeExternalSystemNode" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="youke" type="f1a62948:ProjectNode" />
+                <item name="user" type="2d1252cf:ModuleNode" />
+                <item name="Dependencies" type="6de06a37:ExternalSystemViewDefaultContributor$MyDependenciesNode" />
+                <item name="runtimeClasspath" type="62daadca:ExternalSystemViewDefaultContributor$DependencyScopeExternalSystemNode" />
+                <item name="it.justwrote:kjob-kron:0.2.0" type="b3323d55:ExternalSystemViewDefaultContributor$DependencyExternalSystemNode" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="youke" type="f1a62948:ProjectNode" />
+                <item name="user" type="2d1252cf:ModuleNode" />
+                <item name="Dependencies" type="6de06a37:ExternalSystemViewDefaultContributor$MyDependenciesNode" />
+                <item name="runtimeClasspath" type="62daadca:ExternalSystemViewDefaultContributor$DependencyScopeExternalSystemNode" />
+                <item name="it.justwrote:kjob-kron:0.2.0" type="b3323d55:ExternalSystemViewDefaultContributor$DependencyExternalSystemNode" />
+                <item name="com.cronutils:cron-utils:9.1.1" type="b3323d55:ExternalSystemViewDefaultContributor$DependencyExternalSystemNode" />
+              </path>
+            </expand>
+            <select />
+          </tree_state>
+        </projects_view>
+      </state>
+    </system>
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Kotlin File" />
+        <option value="Kotlin Class" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/modules/activity" />
+  </component>
+  <component name="MavenImportPreferences">
+    <option name="generalSettings">
+      <MavenGeneralSettings>
+        <option name="mavenHome" value="$APPLICATION_HOME_DIR$/plugins/maven/lib/maven3" />
+      </MavenGeneralSettings>
+    </option>
+  </component>
+  <component name="ProjectId" id="1jaUSNsCIm2wV8W799ZD0uFsyDo" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="ASKED_ADD_EXTERNAL_FILES" value="true" />
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/modules/spider" />
+    <property name="project.structure.last.edited" value="Modules" />
+    <property name="project.structure.proportion" value="0.15" />
+    <property name="project.structure.side.proportion" value="0.52528733" />
+    <property name="settings.editor.selected.configurable" value="preferences.pluginManager" />
+  </component>
+  <component name="RecentsManager">
+    <key name="MoveKotlinTopLevelDeclarationsDialog.RECENTS_KEY">
+      <recent name="msg" />
+      <recent name="" />
+      <recent name="raw" />
+      <recent name="oa" />
+    </key>
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/modules/spider" />
+      <recent name="$PROJECT_DIR$/app/mainApp" />
+      <recent name="$PROJECT_DIR$/modules/wxWork/src" />
+      <recent name="$PROJECT_DIR$/app/chatArchive" />
+      <recent name="$PROJECT_DIR$/modules/weixin/src/work/agent" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/modules/spider" />
+      <recent name="$PROJECT_DIR$/modules/stats/src/count" />
+      <recent name="$PROJECT_DIR$/modules/stats/src" />
+      <recent name="$PROJECT_DIR$/modules/stats/src/stats" />
+      <recent name="$PROJECT_DIR$/modules/stats/src/raw" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Gradle.ApplicationTest">
+    <configuration name="ApplicationTest" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$/app/chatArchive" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" value="--tests &quot;com.github.rwsbillyang.chatArchive.ApplicationTest&quot;" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value=":test" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <GradleScriptDebugEnabled>false</GradleScriptDebugEnabled>
+      <method v="2" />
+    </configuration>
+    <configuration name="MainKt" type="JetRunConfigurationType" temporary="true" nameIsGenerated="true">
+      <module name="chatArchive.test" />
+      <option name="VM_PARAMETERS" />
+      <option name="PROGRAM_PARAMETERS" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <option name="PASS_PARENT_ENVS" value="true" />
+      <option name="MAIN_CLASS_NAME" value="com.github.rwsbillyang.chatArchive.MainKt" />
+      <option name="WORKING_DIRECTORY" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Gradle.ApplicationTest" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="8c20b7a0-ccaf-4dcf-ac00-a03f6a5dbce9" name="Default Changelist" comment="" />
+      <created>1604041698389</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1604041698389</updated>
+    </task>
+    <servers />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="oldMeFiltersMigrated" value="true" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
+    <ignored-roots>
+      <path value="$PROJECT_DIR$/modules/order" />
+      <path value="$PROJECT_DIR$/modules/groupon" />
+      <path value="$PROJECT_DIR$" />
+    </ignored-roots>
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="484" y="292" key="#Notifications" timestamp="1613367476857">
+      <screen x="53" y="23" width="1387" height="877" />
+    </state>
+    <state x="484" y="292" key="#Notifications/53.23.1387.877@53.23.1387.877" timestamp="1613367476857" />
+    <state x="244" y="32" key="#Project_Structure" timestamp="1613911444927">
+      <screen x="53" y="23" width="1387" height="877" />
+    </state>
+    <state x="244" y="32" key="#Project_Structure/53.23.1387.877@53.23.1387.877" timestamp="1613911444927" />
+    <state x="434" y="270" key="#com.intellij.fileTypes.FileTypeChooser" timestamp="1613911071208">
+      <screen x="53" y="23" width="1387" height="877" />
+    </state>
+    <state x="434" y="270" key="#com.intellij.fileTypes.FileTypeChooser/53.23.1387.877@53.23.1387.877" timestamp="1613911071208" />
+    <state x="536" y="173" key="#com.intellij.ide.util.MemberChooser" timestamp="1613625307283">
+      <screen x="53" y="23" width="1387" height="877" />
+    </state>
+    <state x="536" y="173" key="#com.intellij.ide.util.MemberChooser/53.23.1387.877@53.23.1387.877" timestamp="1613625307283" />
+    <state x="409" y="382" key="#com.intellij.refactoring.move.MoveHandler.SelectRefactoringDialog" timestamp="1605616694570">
+      <screen x="53" y="23" width="1387" height="877" />
+    </state>
+    <state x="409" y="382" key="#com.intellij.refactoring.move.MoveHandler.SelectRefactoringDialog/53.23.1387.877@53.23.1387.877" timestamp="1605616694570" />
+    <state x="278" y="23" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog" timestamp="1613534308930">
+      <screen x="53" y="23" width="1387" height="877" />
+    </state>
+    <state x="278" y="0" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog/53.0.1387.900@53.0.1387.900" timestamp="1610114929788" />
+    <state x="278" y="23" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog/53.23.1387.877@53.23.1387.877" timestamp="1613534308930" />
+    <state x="494" y="204" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog" timestamp="1613713932906">
+      <screen x="53" y="23" width="1387" height="877" />
+    </state>
+    <state x="494" y="204" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog/53.23.1387.877@53.23.1387.877" timestamp="1613713932906" />
+    <state x="517" y="249" key="#org.jetbrains.kotlin.idea.refactoring.move.moveDeclarations.ui.MoveKotlinTopLevelDeclarationsDialog" timestamp="1613467185956">
+      <screen x="53" y="23" width="1387" height="877" />
+    </state>
+    <state x="517" y="232" key="#org.jetbrains.kotlin.idea.refactoring.move.moveDeclarations.ui.MoveKotlinTopLevelDeclarationsDialog/53.0.1387.900@53.0.1387.900" timestamp="1610114728390" />
+    <state x="517" y="249" key="#org.jetbrains.kotlin.idea.refactoring.move.moveDeclarations.ui.MoveKotlinTopLevelDeclarationsDialog/53.23.1387.877@53.23.1387.877" timestamp="1613467185956" />
+    <state width="1345" height="231" key="GridCell.Tab.0.bottom" timestamp="1607216721610">
+      <screen x="53" y="23" width="1387" height="877" />
+    </state>
+    <state width="1345" height="231" key="GridCell.Tab.0.bottom/53.23.1387.877@53.23.1387.877" timestamp="1607216721610" />
+    <state width="1345" height="231" key="GridCell.Tab.0.center" timestamp="1607216721610">
+      <screen x="53" y="23" width="1387" height="877" />
+    </state>
+    <state width="1345" height="231" key="GridCell.Tab.0.center/53.23.1387.877@53.23.1387.877" timestamp="1607216721610" />
+    <state width="1345" height="231" key="GridCell.Tab.0.left" timestamp="1607216721609">
+      <screen x="53" y="23" width="1387" height="877" />
+    </state>
+    <state width="1345" height="231" key="GridCell.Tab.0.left/53.23.1387.877@53.23.1387.877" timestamp="1607216721609" />
+    <state width="1345" height="231" key="GridCell.Tab.0.right" timestamp="1607216721610">
+      <screen x="53" y="23" width="1387" height="877" />
+    </state>
+    <state width="1345" height="231" key="GridCell.Tab.0.right/53.23.1387.877@53.23.1387.877" timestamp="1607216721610" />
+    <state x="372" y="214" key="NewModule_or_Project.wizard" timestamp="1606459050437">
+      <screen x="53" y="23" width="1387" height="877" />
+    </state>
+    <state x="372" y="214" key="NewModule_or_Project.wizard/53.23.1387.877@53.23.1387.877" timestamp="1606459050437" />
+    <state x="244" y="32" key="SettingsEditor" timestamp="1613910146292">
+      <screen x="53" y="23" width="1387" height="877" />
+    </state>
+    <state x="244" y="32" key="SettingsEditor/53.23.1387.877@53.23.1387.877" timestamp="1613910146292" />
+    <state x="393" y="63" width="780" height="775" key="new project wizard" timestamp="1613910806006">
+      <screen x="53" y="23" width="1387" height="877" />
+    </state>
+    <state x="393" y="63" width="780" height="775" key="new project wizard/53.23.1387.877@53.23.1387.877" timestamp="1613910806006" />
+    <state x="385" y="214" width="670" height="659" key="search.everywhere.popup" timestamp="1613552395551">
+      <screen x="53" y="23" width="1387" height="877" />
+    </state>
+    <state x="385" y="196" width="670" height="676" key="search.everywhere.popup/53.0.1387.900@53.0.1387.900" timestamp="1605841509880" />
+    <state x="385" y="214" width="670" height="659" key="search.everywhere.popup/53.23.1387.877@53.23.1387.877" timestamp="1613552395551" />
+  </component>
+</project>
