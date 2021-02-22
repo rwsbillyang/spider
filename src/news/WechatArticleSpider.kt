@@ -55,13 +55,3 @@ class WechatArticleSpider: PageStreamParser(), ISpider {
         }
     }
 }
-
-fun main(args: Array<String>) {
-    val wechatSpider = WechatArticleSpider()
-    val map = mutableMapOf<String, String?>()
-    //https://mp.weixin.qq.com/s/fBFQg0dDDBctl1fT3RlW0g
-    wechatSpider.doParse("https://mp.weixin.qq.com/s/dgjpOWWz9P87I17OmFCGHQ", map)
-    map.forEach{
-        println("${it.key}=${it.value}")
-    }
-}
