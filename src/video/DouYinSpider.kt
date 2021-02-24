@@ -24,7 +24,10 @@ import com.github.rwsbillyang.spider.Spider
 import kotlinx.serialization.json.*
 import org.jsoup.Connection
 
-
+/**
+ * 抖音的视频地址 经常变换，需要经常解析
+ * 解析后的地址，会被微信拦截，少数机型没有拦截
+ * */
 class DouYinSpider: VideoSpider(){
     override val regPattern = "[^x00-xff]*\\s*http(s)?://(\\w|-)+\\.douyin\\.com/\\S+\\s*[^x00-xff]*"
     override val errMsg = "请确认链接是否包含： https://v.douyin.com/ 等字符"
@@ -44,7 +47,6 @@ class DouYinSpider: VideoSpider(){
 
             //https://www.iesdouyin.com/web/api/v2/aweme/iteminfo/?item_ids=6846660517122084096
             val con = getConn(apiUrl)
-
             val res: Connection.Response = con.ignoreContentType(true).timeout(10000).execute()
 
             //https://github.com/Kotlin/kotlinx.serialization/blob/master/docs/json.md#json-elements

@@ -18,10 +18,10 @@
 
 package com.github.rwsbillyang.spider
 
+import com.github.rwsbillyang.spider.news.BaiduSpider
 import com.github.rwsbillyang.spider.news.Spider163
 import com.github.rwsbillyang.spider.news.ToutiaoSpider
 import com.github.rwsbillyang.spider.news.WechatArticleSpider
-import com.github.rwsbillyang.spider.video.DouYinSpider
 import com.github.rwsbillyang.spider.video.KuaiShouSpider
 import java.util.regex.Pattern
 
@@ -80,36 +80,47 @@ object Spider {
     }
 
     private var wechatArticleSpider = WechatArticleSpider()
-    private var douyinSpider: DouYinSpider = DouYinSpider()
     private var newsSpiderToutiao: ToutiaoSpider? = null
+    private var baiduSpider: BaiduSpider? = null
     private var newsSpider163: Spider163? = null
 
+    //private var douyinSpider: DouYinSpider = DouYinSpider()
+    private var kuaiShouSpider: KuaiShouSpider? = null
 
     private fun factory(url: String): ISpider? {
         return if (url.contains("mp.weixin.qq.com")) {
             wechatArticleSpider
-        } else if (url.contains("douyin.com")) {
-            douyinSpider
-        } else if (url.contains("toutiao.com")) {
+        }  else if (url.contains("toutiao.com")) {
             if (newsSpiderToutiao == null) newsSpiderToutiao = ToutiaoSpider()
             newsSpiderToutiao
-        } else if (url.contains("163.com")) {
+        }else if (url.contains("baidu.com")) {
+            if (baiduSpider == null) baiduSpider = BaiduSpider()
+            baiduSpider
+        }
+        else if (url.contains("163.com")) {
             if (newsSpider163 == null) newsSpider163 = Spider163()
             newsSpider163
-        } else {
+        }else if (url.contains("kuaishou.com")) {
+            if (kuaiShouSpider == null) kuaiShouSpider = KuaiShouSpider()
+            kuaiShouSpider
+        }
+        else {
             null
         }
     }
 }
 
 fun main(args: Array<String>) {
-
-    //val spider = Spider163()
-    Spider.parse("https://mp.weixin.qq.com/s/NpBK_bNd7lUtZwsv91Xb6A").forEach {
+    //https://mp.weixin.qq.com/s/fBFQg0dDDBctl1fT3RlW0g  https://mp.weixin.qq.com/s/dgjpOWWz9P87I17OmFCGHQ
+    Spider.parse("https://mp.weixin.qq.com/s/9ESoDV7-Fo6_mHvYC69W9w").forEach {
         println("${it.key}=${it.value}")
     }
 
-    //https://mp.weixin.qq.com/s/fBFQg0dDDBctl1fT3RlW0g  https://mp.weixin.qq.com/s/dgjpOWWz9P87I17OmFCGHQ
+    Spider.parse("https://3g.163.com/news/article/G3K55190000189FH.html?clickfrom=index2018_news_newslist#offset=0")
+        .forEach {
+            println("${it.key}=${it.value}")
+        }
+
     Spider.parse("https://m.toutiao.com/i6525188057665110531/")
         .forEach {
             println("${it.key}=${it.value}")

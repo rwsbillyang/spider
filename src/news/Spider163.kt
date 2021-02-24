@@ -29,8 +29,12 @@ class Spider163: PageStreamParser(), ISpider {
             ExtractRule(Spider.TITLE, PrefixMatchRule("<h1 class=\"title\"",">","<")),
             ExtractRule(Spider.IMGURL, PrefixMatchRule("<meta property=\"og:image\"","content=\"","\"")),
             ExtractRule(
+                Spider.TAG,
+                PrefixMatchRule("<meta property=\"article:tag\"","content=\"","\"")
+            ),
+            ExtractRule(
                 Spider.BRIEF,
-                PrefixMatchRule("<meta property=\"og:description\"","content=\"","\">")
+                PrefixMatchRule("<meta property=\"og:description\"","content=\"","\"")
             ),
             ExtractRule(
                 Spider.CONTENT, MultiLineRule(

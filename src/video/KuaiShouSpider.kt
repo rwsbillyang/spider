@@ -32,6 +32,9 @@ fun DomNode.attr(name: String) = attributes.getNamedItem(name).textContent
 /**
  * 动态网页，即使用htmlunit，也未成功，因htmlunit中js执行出错
  * TODO: 改为selenium或分析出
+ * https://github.com/bajingxiaozi/video_parse/blob/master/src/main/java/com/xyf/video/parse/KuaishouLinkParse.java
+ *
+ * https://docs.tenapi.cn/kuaishou.html
  * */
 class KuaiShouSpider: VideoSpider() {
     override val regPattern =  "[^x00-xff]*\\s*http(s)?://(\\w|-)+\\.kuaishou\\.com/\\S+\\s*[^x00-xff]*"
