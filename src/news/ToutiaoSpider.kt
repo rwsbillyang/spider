@@ -88,7 +88,7 @@ class ToutiaoSpider:  ISpider {
 
 
         map[Spider.RET] = Spider.KO
-        map[Spider.MSG] = "fail to get content"
+        map[Spider.MSG] = "此链接可能不支持，换一个地方链接试试吧"
 
         return map
     }

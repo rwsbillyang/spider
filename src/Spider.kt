@@ -66,7 +66,7 @@ object Spider {
         if (spider == null) {
             val map = mutableMapOf<String, String?>()
             map[Spider.RET] = Spider.KO
-            map[Spider.MSG] = "暂只支持微信文章、抖音短视频、163！请确认链接域名是否正确" //快手短视频、今日头条、
+            map[Spider.MSG] = "暂只支持微信公众号文章、今日头条、百度百家号、3g.163.com等网站文章、快手短视频，请换个地方的链接试试吧" //快手短视频、今日头条、
             return map
         }
         val isInvalid: Boolean = Pattern.matches(spider.regPattern, url)
@@ -85,7 +85,7 @@ object Spider {
     private var newsSpider163: Spider163? = null
 
     //private var douyinSpider: DouYinSpider = DouYinSpider()
-    private var kuaiShouSpider: KuaiShouSpider? = null
+    var kuaiShouSpider: KuaiShouSpider? = null
 
     private fun factory(url: String): ISpider? {
         return if (url.contains("mp.weixin.qq.com")) {

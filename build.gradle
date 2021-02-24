@@ -48,7 +48,9 @@ dependencies {
     implementation "ch.qos.logback:logback-classic:$logback_version"
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinx_serialization_version") // JVM dependency
     implementation 'org.jsoup:jsoup:1.11.3'
-    implementation 'net.sourceforge.htmlunit:htmlunit:2.47.1'
+
+    implementation 'org.seleniumhq.selenium:selenium-java:3.141.59'
+    implementation 'org.seleniumhq.selenium:selenium-chrome-driver:3.141.59'
 }
 publishing {
     publications {
