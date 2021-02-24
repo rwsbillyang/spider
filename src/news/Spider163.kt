@@ -42,10 +42,14 @@ class Spider163: PageStreamParser(), ISpider {
 
     //https://3g.163.com/all/article/DB8SPSIU0001875P.html
     //https://3g.163.com/all/article/DB85P66L0001899O.html
-    override fun doParse(url: String, map: MutableMap<String, String?>) {
+    override fun doParse(url: String): Map<String, String?> {
+        val map = mutableMapOf<String, String?>()
         getPageAndParse(url, map)
-        map.put(Spider.LINK, url);
-        map.put(Spider.USER, "网易");
+        map[Spider.LINK] = url
+        map[Spider.USER] = "网易"
+
+        return map
+
     }
 }
 

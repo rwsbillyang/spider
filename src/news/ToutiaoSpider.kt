@@ -46,12 +46,16 @@ class ToutiaoSpider: PageStreamParser(), ISpider {
 
     //https://www.toutiao.com/i6525188057665110531/
     //https://m.toutiao.com/i6525188057665110531/
-    override fun doParse(url: String, map: MutableMap<String, String?>) {
+    override fun doParse(url: String): Map<String, String?> {
+        val map = mutableMapOf<String, String?>()
+
         val url2=url.replace("//m.", "//www.");
 //        getPageAndParse(url2, map)
 //        map.put(Spider.LINK, url2)
 //        map.put(Spider.USER, "今日头条")
         doParseBasedInJsoup(url2, map)
+
+        return map
     }
 
 

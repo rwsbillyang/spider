@@ -23,15 +23,15 @@ interface ISpider {
     /**
      * url是否合法正确
      */
-    val regPattern: String?
+    val regPattern: String
 
     /**
      * url格式不对时的提示信息
      */
-    val errMsg: String?
+    val errMsg: String
 
     /**
      * parse page
      */
-    fun doParse(url: String, map: MutableMap<String, String?>)
+    fun doParse(url: String): Map<String, String?>
 }

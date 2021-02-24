@@ -48,10 +48,13 @@ class WechatArticleSpider: PageStreamParser(), ISpider {
             //ExtractRule(Spider.LINK, PrefixMatchRule("var msg_link", "\"", "\"")),
         )
 
-    override fun doParse(url: String, map: MutableMap<String, String?>) {
+    override fun doParse(url: String): Map<String, String?> {
+        val map = mutableMapOf<String, String?>()
         getPageAndParse(url, map)
         if(map[Spider.LINK] == null) {
             map[Spider.LINK] = url
         }
+        return map
     }
 }
+

@@ -21,6 +21,9 @@ package com.github.rwsbillyang.spider
 import com.github.rwsbillyang.spider.news.Spider163
 import com.github.rwsbillyang.spider.news.ToutiaoSpider
 import com.github.rwsbillyang.spider.news.WechatArticleSpider
+import com.github.rwsbillyang.spider.video.DouYinSpider
+import com.github.rwsbillyang.spider.video.KuaiShouSpider
+import java.util.regex.Pattern
 
 
 object Spider {
@@ -53,21 +56,72 @@ object Spider {
     const val TAG = "tag"
     const val OGURL = "ogurl"
 
+    const val VIDEO_COVER = "video_cover"
     const val VIDEO = "video"
     const val MUSIC = "music"
+
+
+    fun parse(url: String): Map<String, String?> {
+        val spider = factory(url)
+        if (spider == null) {
+            val map = mutableMapOf<String, String?>()
+            map[Spider.RET] = Spider.KO
+            map[Spider.MSG] = "暂只支持微信文章、抖音短视频、163！请确认链接域名是否正确" //快手短视频、今日头条、
+            return map
+        }
+        val isInvalid: Boolean = Pattern.matches(spider.regPattern, url)
+        if (!isInvalid) {
+            val map = mutableMapOf<String, String?>()
+            map[Spider.RET] = Spider.KO
+            map[Spider.MSG] = spider.errMsg
+            return map
+        }
+        return spider.doParse(url)
+    }
+
+    private var wechatArticleSpider = WechatArticleSpider()
+    private var douyinSpider: DouYinSpider = DouYinSpider()
+    private var newsSpiderToutiao: ToutiaoSpider? = null
+    private var newsSpider163: Spider163? = null
+
+
+    private fun factory(url: String): ISpider? {
+        return if (url.contains("mp.weixin.qq.com")) {
+            wechatArticleSpider
+        } else if (url.contains("douyin.com")) {
+            douyinSpider
+        } else if (url.contains("toutiao.com")) {
+            if (newsSpiderToutiao == null) newsSpiderToutiao = ToutiaoSpider()
+            newsSpiderToutiao
+        } else if (url.contains("163.com")) {
+            if (newsSpider163 == null) newsSpider163 = Spider163()
+            newsSpider163
+        } else {
+            null
+        }
+    }
 }
 
-
 fun main(args: Array<String>) {
-    //val spider = WechatArticleSpider()
+
     //val spider = Spider163()
-    val spider = ToutiaoSpider()
-
-    val map = mutableMapOf<String, String?>()
-    //https://mp.weixin.qq.com/s/fBFQg0dDDBctl1fT3RlW0g  https://mp.weixin.qq.com/s/dgjpOWWz9P87I17OmFCGHQ
-
-    spider.doParse("https://m.toutiao.com/i6525188057665110531/", map)
-    map.forEach{
+    Spider.parse("https://mp.weixin.qq.com/s/NpBK_bNd7lUtZwsv91Xb6A").forEach {
         println("${it.key}=${it.value}")
     }
+
+    //https://mp.weixin.qq.com/s/fBFQg0dDDBctl1fT3RlW0g  https://mp.weixin.qq.com/s/dgjpOWWz9P87I17OmFCGHQ
+    Spider.parse("https://m.toutiao.com/i6525188057665110531/")
+        .forEach {
+            println("${it.key}=${it.value}")
+        }
+
+    Spider.parse(" #汪星人 #宠物避障挑战 https://v.kuaishou.com/5xXNiL 复制此链接，打开【快手App】直接观看！")
+        .forEach {
+            println("${it.key}=${it.value}")
+        }
+
+    Spider.parse("三里屯街拍，祝愿大家高考顺利 https://v.douyin.com/JNDRc6L/ 复制此链接，打开【抖音短视频】，直接观看视频！")
+        .forEach {
+            println("${it.key}=${it.value}")
+        }
 }
