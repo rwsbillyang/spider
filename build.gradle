@@ -47,7 +47,7 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     implementation "ch.qos.logback:logback-classic:$logback_version"
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinx_serialization_version") // JVM dependency
-    implementation 'org.jsoup:jsoup:1.11.3'
+    implementation 'org.jsoup:jsoup:1.13.1'
 
     implementation 'org.seleniumhq.selenium:selenium-java:3.141.59'
     implementation 'org.seleniumhq.selenium:selenium-chrome-driver:3.141.59'

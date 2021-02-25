@@ -31,7 +31,7 @@ import java.io.IOException
 class BaiduSpider : ISpider {
     private val log: Logger = LoggerFactory.getLogger("BaiduSpider")
 
-    override val regPattern = "http(s)?://(\\w|-)+\\.baidu\\.com/\\S+"
+    override val regPattern = "http(s)?://baijiahao\\.baidu\\.com/\\S+"
     override val errMsg = "请使用 http://baijiahao.baidu.com/ 开头的文章链接上传"
 
     override fun doParse(url: String): Map<String, String?> {

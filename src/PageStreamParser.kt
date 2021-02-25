@@ -126,11 +126,11 @@ abstract class PageStreamParser {
 
     abstract val extractRules: Array<ExtractRule>
 
-    fun getPageAndParse(url: String, map: MutableMap<String, String?>) {
-        parseStream(url, getPageInputStream(url), map)
+    fun getPageAndParse(url: String, map: MutableMap<String, String?>, encode: String = "UTF-8") {
+        parseStream(url, getPageInputStream(url, encode), map, encode)
     }
 
-    private fun getPageInputStream(url: String): InputStream? {
+    private fun getPageInputStream(url: String, encode: String): InputStream? {
         log.info("parse url=$url")
         try {
             //建立请求链接
@@ -140,7 +140,7 @@ abstract class PageStreamParser {
             conn.connectTimeout = 10000
             conn.defaultUseCaches = true
             conn.setRequestProperty("User-agent", Spider.UAs[0])
-            conn.setRequestProperty("Charset", "UTF-8")
+            conn.setRequestProperty("Charset",encode)
             conn.connect() //本方法不会自动重连
 
             return conn.getInputStream() ?: return null
@@ -154,7 +154,7 @@ abstract class PageStreamParser {
 
 
 
-    private fun parseStream(url: String, `is`: InputStream?, map: MutableMap<String, String?>) {
+    private fun parseStream(url: String, `is`: InputStream?, map: MutableMap<String, String?>, encode: String) {
         if (`is` == null) {
             log.warn("InputStream is null")
             map[Spider.RET] = Spider.KO
@@ -163,7 +163,7 @@ abstract class PageStreamParser {
         }
 
         try {
-            val `in` = BufferedReader(InputStreamReader(`is`, "UTF-8"))
+            val `in` = BufferedReader(InputStreamReader(`is`, encode))
             var line: String? = null
             var count = 0
             var ret: Int

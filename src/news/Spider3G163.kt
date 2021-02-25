@@ -20,45 +20,36 @@ package com.github.rwsbillyang.spider.news
 
 import com.github.rwsbillyang.spider.*
 
-//TODO: 里面的视频有问题
-class Spider163: PageStreamParser(), ISpider {
-    override val regPattern = "http(s)?://(news|www)?\\.?163\\.com/\\S+"
+class Spider3G163: PageStreamParser(), ISpider {
+    override val regPattern = "http(s)?://3g\\.163\\.com/\\S+"
     override val errMsg = "请确认链接是否以开头： https://3g.163.com/"
 
     override val extractRules =
         arrayOf(
+            ExtractRule(Spider.TITLE, PrefixMatchRule("<h1 class=\"title\"",">","<")),
+            ExtractRule(Spider.IMGURL, PrefixMatchRule("<meta property=\"og:image\"","content=\"","\"")),
             ExtractRule(
                 Spider.TAG,
-                PrefixMatchRule("<meta name=\"keywords\"","content=\"","\"")
+                PrefixMatchRule("<meta property=\"article:tag\"","content=\"","\"")
             ),
-            ExtractRule(Spider.TITLE, PrefixMatchRule("<meta property=\"og:title\"","content=\"","\"")),
             ExtractRule(
                 Spider.BRIEF,
                 PrefixMatchRule("<meta property=\"og:description\"","content=\"","\"")
             ),
-            ExtractRule(Spider.LINK, PrefixMatchRule("<link rel=\"canonical\"","href=\"","\"")),
-            ExtractRule(Spider.IMGURL, PrefixMatchRule("<meta property=\"og:image\"","content=\"","\"")),
-
-
             ExtractRule(
                 Spider.CONTENT, MultiLineRule(
-                    EqualRule("<div class=\"post_body\">"),
-                    EqualRule("</div>")
+                    EqualRule("<div class=\"page js-page on\">"),
+                    EqualRule("<div class=\"otitle_editor\">")
                 )
             ),
         )
 
-
+    //https://3g.163.com/all/article/DB8SPSIU0001875P.html
+    //https://3g.163.com/all/article/DB85P66L0001899O.html
     override fun doParse(url: String): Map<String, String?> {
         val map = mutableMapOf<String, String?>()
-        if(url.contains("//www."))
-            getPageAndParse(url, map, "GBK")
-        else getPageAndParse(url, map)
-
-        if(map[Spider.LINK].isNullOrBlank())
-            map[Spider.LINK] = url.split("?").firstOrNull()
-        if(map[Spider.IMGURL].isNullOrBlank())
-            map[Spider.IMGURL] = HtmlImgUtil.getImageSrc(map[Spider.CONTENT])?.firstOrNull()
+        getPageAndParse(url, map)
+        map[Spider.LINK] = url
         map[Spider.USER] = "网易"
 
         return map
@@ -66,11 +57,3 @@ class Spider163: PageStreamParser(), ISpider {
     }
 }
 
-fun main(args: Array<String>) {
-    //https://www.163.com/dy/article/G3M3MP6G0534P59R.html?clickfrom=w_yw
-    //https://news.163.com/21/0225/11/G3M7QPGP0001899O.html?clickfrom=w_yw
-    Spider163().doParse("https://news.163.com/21/0225/11/G3M7QPGP0001899O.html?clickfrom=w_yw")
-        .forEach {
-            println("${it.key}=${it.value}")
-        }
-}

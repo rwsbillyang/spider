@@ -18,10 +18,7 @@
 
 package com.github.rwsbillyang.spider
 
-import com.github.rwsbillyang.spider.news.BaiduSpider
-import com.github.rwsbillyang.spider.news.Spider163
-import com.github.rwsbillyang.spider.news.ToutiaoSpider
-import com.github.rwsbillyang.spider.news.WechatArticleSpider
+import com.github.rwsbillyang.spider.news.*
 import com.github.rwsbillyang.spider.video.KuaiShouSpider
 import java.util.regex.Pattern
 
@@ -60,13 +57,12 @@ object Spider {
     const val VIDEO = "video"
     const val MUSIC = "music"
 
-
     fun parse(url: String): Map<String, String?> {
         val spider = factory(url)
         if (spider == null) {
             val map = mutableMapOf<String, String?>()
             map[Spider.RET] = Spider.KO
-            map[Spider.MSG] = "暂只支持微信公众号文章、今日头条、百度百家号、3g.163.com等网站文章、快手短视频，请换个地方的链接试试吧" //快手短视频、今日头条、
+            map[Spider.MSG] = "暂只支持微信公众号文章，实验性支持：今日头条、快手短视频，请换个链接试试吧" //快手短视频、今日头条、
             return map
         }
         val isInvalid: Boolean = Pattern.matches(spider.regPattern, url)
@@ -82,27 +78,30 @@ object Spider {
     private var wechatArticleSpider = WechatArticleSpider()
     private var newsSpiderToutiao: ToutiaoSpider? = null
     private var baiduSpider: BaiduSpider? = null
-    private var newsSpider163: Spider163? = null
+    var kuaiShouSpider: KuaiShouSpider? = null
 
     //private var douyinSpider: DouYinSpider = DouYinSpider()
-    var kuaiShouSpider: KuaiShouSpider? = null
+
 
     private fun factory(url: String): ISpider? {
         return if (url.contains("mp.weixin.qq.com")) {
             wechatArticleSpider
-        }  else if (url.contains("toutiao.com")) {
+        }  else if (url.contains("toutiao.com") || url.contains("toutiaocdn.com")) {
             if (newsSpiderToutiao == null) newsSpiderToutiao = ToutiaoSpider()
             newsSpiderToutiao
-        }else if (url.contains("baidu.com")) {
+        }
+        else if (url.contains("kuaishou.com") || url.contains("kuaishouapp.com") ) {
+            if (kuaiShouSpider == null) kuaiShouSpider = KuaiShouSpider()
+            kuaiShouSpider
+        }
+        else if (url.contains("baidu.com")) {
             if (baiduSpider == null) baiduSpider = BaiduSpider()
             baiduSpider
         }
         else if (url.contains("163.com")) {
-            if (newsSpider163 == null) newsSpider163 = Spider163()
-            newsSpider163
-        }else if (url.contains("kuaishou.com")) {
-            if (kuaiShouSpider == null) kuaiShouSpider = KuaiShouSpider()
-            kuaiShouSpider
+            if(url.contains("//3g.163.com")) Spider3G163()
+            else if(url.contains("//c.m.163.com")) SpiderCM163()
+            else Spider163()
         }
         else {
             null

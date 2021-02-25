@@ -42,28 +42,28 @@ import java.io.IOException
  * https://docs.tenapi.cn/kuaishou.html
  * */
 class KuaiShouSpider(binary: String? = null) : VideoSpider() {
-    override val regPattern = "[^x00-xff]*\\s*http(s)?://(\\w|-)+\\.kuaishou\\.com/\\S+\\s*[^x00-xff]*"
-    override val errMsg = "请确认链接是否包含： https://v.kuaishou.com/"
+    override val regPattern = "[^x00-xff]*\\s*http(s)?://(\\w|-)+\\.kuaishou(app)?\\.com/\\S+\\s*[^x00-xff]*"
+    override val errMsg = "请确认链接是否包含： https://v.kuaishou.com/ 或 https://v.kuaishouapp.com/"
 
-
-    private val driver: WebDriver = ChromeDriver(ChromeOptions().apply {
+    init {
+        System.setProperty("webdriver.chrome.driver", binary?:"./chromedriver") // 必须加入
+    }
+    private val chromeOptions = ChromeOptions().apply {
         setHeadless(true) //已包含addArguments("--disable-gpu")
         addArguments("--user-agent="+Spider.UAs[2])
         addArguments("--blink-settings=imagesEnabled=false") //禁用图片加载
         addArguments("--incognito")
-        addArguments("--window-size=800,600")
+        addArguments("--window-size=400,300")
         addArguments("--disable-dev-shm-usage")
         addArguments("--disable-extensions")
         addArguments("--lang=zh-CN")
         addArguments("--disable-images")
         addArguments("--single-process")
         addArguments ("--no-sandbox")
-        System.setProperty("webdriver.chrome.driver", binary?:"./chromedriver") // 必须加入
+
         //setBinary(binary?:"./chromedriver") //not work
-    })
-    fun onShutDown(){
-        driver.quit()
     }
+
 
     override fun decodeHttpUrl(originUrl: String): String {
         val start = originUrl.indexOf("http")
@@ -77,25 +77,17 @@ class KuaiShouSpider(binary: String? = null) : VideoSpider() {
     //https://video.kuaishou.com/short-video/3xmtv34g7te766m
     //https://c.kuaishou.com/fw/photo/3xmtv34g7te766m?fid=364977367&cc=share_copylink&shareMethod=TOKEN&docId=0&kpn=KUAISHOU&subBiz=PHOTO&photoId=3xmtv34g7te766m&shareId=174934779986&shareToken=X-9PkGU53YiW8AYq_A&shareResourceType=PHOTO_OTHER&userId=3x3ns26k8ma3mbw&shareType=1&et=1_i%2F0_unknown0&groupName=&appType=1&shareObjectId=28588605066&shareUrlOpened=0&timestamp=1589543938285
     // originUrl: #汪星人 #宠物避障挑战 https://v.kuaishou.com/5xXNiL 复制此链接，打开【快手App】直接观看！
+    //https://video.kuaishou.com/short-video/3x427dag2cd4je6?authorId=3xc4zhidhjika4a&streamSource=find&area=homexxbrilliant
     override fun doParse(url: String): Map<String, String?> {
         val map = mutableMapOf<String, String?>()
-        val url2 = decodeHttpUrl(url)
+        val url2 = decodeHttpUrl(url.replace("kuaishouapp.com","kuaishou.com")).split('?').first()
 
-//        log.info("url=$url2")
-//        val con = getConn(url2)
-//        val reUrl = getRedirectURL(con)
-//        log.info("reUrl=$reUrl")
+        log.info("originUrl=$url, url=$url2")
 
-//        val userId = reUrl.split("userId=")[1].split("&")[0] //得到userId：3x3ns26k8ma3mbw
-//        val vId = reUrl.split("?")[0].split("/").last() //得到videoId: 3xmtv34g7te766m
-//        val url_1 = res2['Cookie'].split(";")[-1].replace(":", "=")
-//        val lastUrl =
-//            "https://live.kuaishou.com/u/" + userId + "/" + vId + "?" + url_1 //https://live.kuaishou.com/u/3x3ns26k8ma3mbw/3xmtv34g7te766m
-
-
+        val driver: WebDriver = ChromeDriver(chromeOptions)
         try {
             driver.get(url2)// 目标地址
-            val video: WebElement = WebDriverWait(driver, 5)
+            val video: WebElement = WebDriverWait(driver, 30)
                 .until { d -> driver.findElement(By.tagName("video")) }
 
             map[Spider.VIDEO_COVER] = video.getAttribute("poster")?.split("&")?.firstOrNull()
@@ -103,7 +95,7 @@ class KuaiShouSpider(binary: String? = null) : VideoSpider() {
             map[Spider.TITLE] = video.getAttribute("alt")?.split("#")?.firstOrNull()
 
             map[Spider.IMGURL] = driver.findElement(By.cssSelector("link[rel=\"image-src\"]")).getAttribute("href")
-            map[Spider.USER] = driver.findElement(By.cssSelector("div.name")).text
+            map[Spider.USER] = driver.findElement(By.cssSelector("div.auth-name")).text?:"KuaiShou"
 
             map[Spider.LINK] = url2
             map[Spider.RET] = Spider.OK
@@ -111,8 +103,13 @@ class KuaiShouSpider(binary: String? = null) : VideoSpider() {
 
             return map
         } catch (e: IOException) {
-            e.printStackTrace()
-        } finally {
+            log.error("${e.message},originUrl=$url, url=$url2")
+            map[Spider.MSG] = "获取内容时IO错误，请稍后再试"
+        }catch (e: Exception){
+            log.error("${e.message},originUrl=$url, url=$url2")
+            map[Spider.MSG] = "获取内容时出现错误，请稍后再试"
+        }
+        finally {
             driver.close()
         }
 
@@ -122,8 +119,10 @@ class KuaiShouSpider(binary: String? = null) : VideoSpider() {
     }
 }
 
+//这个家，我怕是回不去了！#超级段子手计划 https://v.kuaishou.com/bI3JFM 复制此消息，打开【快手】直接观看！
 fun main(args: Array<String>) {
-    KuaiShouSpider("/Users/bill/git/youke/server/app/mainApp/chromedriver").doParse("#汪星人 #宠物避障挑战 https://v.kuaishou.com/5xXNiL 复制此链接，打开【快手App】直接观看！")
+    KuaiShouSpider("/Users/bill/git/youke/server/app/mainApp/chromedriver")
+        .doParse("这个家，我怕是回不去了！#超级段子手计划 https://v.kuaishou.com/bI3JFM 复制此消息，打开【快手】直接观看！")
         .forEach {
             println("${it.key}=${it.value}")
         }

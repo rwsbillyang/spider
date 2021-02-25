@@ -34,8 +34,8 @@ import java.io.IOException
 //网页html全部在一行，PageStreamParser已不适用
 class ToutiaoSpider:  ISpider {
     private val log: Logger = LoggerFactory.getLogger("ToutiaoSpider")
-    override val regPattern = "http(s)?://(m|www)\\.toutiao\\.com/\\S+"
-    override val errMsg = "请确认链接是否以开头： https://m.toutiao.com/ 或 https://www.toutiao.com/"
+    override val regPattern = "http(s)?://(m|www)\\.toutiao(cdn)?\\.com/\\S+"
+    override val errMsg = "请确认链接是否包含： toutiao.com 或 toutiaocdn.com"
 
 //    override val extractRules =
 //        arrayOf(
@@ -56,10 +56,12 @@ class ToutiaoSpider:  ISpider {
     override fun doParse(url: String): Map<String, String?> {
         val map = mutableMapOf<String, String?>()
         log.info("parse url=$url")
-
-        val id = url.substringAfter("toutiao.com/").substringBefore('/').replace('a','i')
+        val newUrl = url.replace("toutiaocdn.com","toutiao.com").split("?").first()
+        log.info("newUrl=$newUrl")
+        val id = newUrl.substringAfter("toutiao.com/").substringBefore('/').replace('a','i')
         val apiUrl="https://m.toutiao.com/$id/info/v2/"
         log.info("apiUrl=$apiUrl")
+
 
         try {
             val con = getConn(apiUrl)
@@ -69,7 +71,7 @@ class ToutiaoSpider:  ISpider {
             if(isSuccess){
                 json?.get("data")?.jsonObject?.let {
                     map[Spider.RET] = Spider.OK
-                    map[Spider.LINK] = url
+                    map[Spider.LINK] = newUrl
 
                     map[Spider.USER] = it.get("source")?.jsonPrimitive?.content
                     map[Spider.TITLE] = it.get("title")?.jsonPrimitive?.content
@@ -135,9 +137,10 @@ class ToutiaoSpider:  ISpider {
         }
     }
 }
-
+//https://www.toutiao.com/a6932388257619657228/
+//https://m.toutiaocdn.com/i6930596509947871747/?app=news_article_lite&timestamp=1614248713&use_new_style=1&req_id=202102251825130101351551474403EE48&group_id=6930596509947871747&share_token=c7d8f7b1-122d-43b9-a777-e335a8288176
 fun main(args: Array<String>) {
-    ToutiaoSpider().doParse("https://www.toutiao.com/a6932388257619657228/")
+    ToutiaoSpider().doParse("https://m.toutiaocdn.com/i6930596509947871747/?app=news_article_lite&timestamp=1614248713&use_new_style=1&req_id=202102251825130101351551474403EE48&group_id=6930596509947871747&share_token=c7d8f7b1-122d-43b9-a777-e335a8288176")
         .forEach {
         println("${it.key}=${it.value}")
     }
