@@ -34,8 +34,8 @@ import java.io.IOException
  * 解析后的地址，会被微信拦截，少数机型没有拦截
  * */
 class DouYinSpider: ISpider{
-    val log: Logger = LoggerFactory.getLogger("DouYinSpider")
-    override val regPattern = "[^x00-xff]*\\s*http(s)?://(\\w|-)+\\.douyin\\.com/\\S+\\s*[^x00-xff]*"
+    private val log: Logger = LoggerFactory.getLogger("DouYinSpider")
+    override val regPattern = "[^x00-xff]*\\s*http(s)?://(\\w|-)+\\.(ies)?douyin\\.com/\\S+\\s*[^x00-xff]*"
     override val errMsg = "请确认链接是否包含： https://v.douyin.com/ 等字符"
 
     /**
@@ -56,7 +56,7 @@ class DouYinSpider: ISpider{
     }
     fun getRedirectURL(url: String): String? {
         return Jsoup.connect(url)
-            .userAgent("Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) AppleWebKit/604.1.38 (KHTML, like Gecko) Version/11.0 Mobile/15A372 Safari/604.1")
+            .userAgent(Spider.UAs_WX[Spider.UAs_WX.indices.random()])
             .ignoreContentType(true)
             .followRedirects(false).timeout(10000)
             .execute()
@@ -65,15 +65,29 @@ class DouYinSpider: ISpider{
 
     // url:  "三里屯街拍，祝愿大家高考顺利 https://v.douyin.com/JNDRc6L/ 复制此链接，打开【抖音短视频】，直接观看视频！"
     override fun doParse(url: String): Map<String, String?>{
+        log.info("doParse, url=$url")
         val map = mutableMapOf<String, String?>()
         try {
-            val url2 = decodeHttpUrl(url)
-            //var con = getConn(url)
-            //https://www.iesdouyin.com/share/video/6846660517122084096/?region=CN&mid=6846660529788947213&u_code=kja81591&titleType=title&utm_source=copy_link&utm_campaign=client_share&utm_medium=android&app=aweme
-            val reUrl = getRedirectURL(url2)
-            val rest = reUrl?.split("video/")?.toTypedArray()
-            val mid = rest?.get(1)?.split("/")?.toTypedArray()
-            val apiUrl = "https://www.iesdouyin.com/web/api/v2/aweme/iteminfo/?item_ids=" + mid?.firstOrNull()
+            //val extractedUrl = decodeHttpUrl(url)
+            //log.info("after decode, extractedUrl=$extractedUrl")
+            val iesUrl = if(url.contains("iesdouyin.com/share/video/"))
+            {
+                url
+            }else{
+                //https://www.iesdouyin.com/share/video/6846660517122084096/?region=CN&mid=6846660529788947213&u_code=kja81591&titleType=title&utm_source=copy_link&utm_campaign=client_share&utm_medium=android&app=aweme
+                getRedirectURL(url)
+            }
+            log.info("parse iesUrl=$iesUrl")
+
+            val mid = iesUrl?.substringAfter("/video/")?.split("/")?.firstOrNull()
+            if(mid.isNullOrBlank()){
+                log.warn("invalid url, no mid")
+                map[Spider.RET] = Spider.KO
+                map[Spider.MSG] = "获取内容失败"
+                return map
+            }
+
+            val apiUrl = "https://www.iesdouyin.com/web/api/v2/aweme/iteminfo/?item_ids=$mid"
 
             //https://www.iesdouyin.com/web/api/v2/aweme/iteminfo/?item_ids=6846660517122084096
             val con = getConn(apiUrl)
@@ -90,23 +104,24 @@ class DouYinSpider: ISpider{
                         when(val e = list[0]){
                             is JsonObject -> {
                                 map[Spider.RET] = Spider.OK
-                                map[Spider.LINK] = url2
+                                map[Spider.LINK] = url
 
                                 map[Spider.USER] = e["author"]?.jsonObject?.get("nickname")?.jsonPrimitive?.content
                                 map[Spider.TITLE] = e["desc"]?.jsonPrimitive?.content
 
                                 val video = e["video"]?.jsonObject
-                                map[Spider.IMGURL] = video?.get("cover")?.jsonObject?.get("url_list")?.jsonArray?.firstOrNull()?.jsonPrimitive?.content
+                                map[Spider.IMGURL] = video?.get("cover")?.jsonObject?.get("url_list")?.jsonArray?.firstOrNull()?.jsonPrimitive?.content?.split("?")?.first()
 
-                                val url1 = video?.get("play_addr")?.jsonObject?.get("url_list")?.jsonArray?.firstOrNull()?.jsonPrimitive?.content?.replace("playwm", "play")
-                                val videoUrl = url1?.let { getRedirectURL(it)?.split("?")?.firstOrNull() }?:url1
-                                if(videoUrl.isNullOrBlank()){
+                                //https://aweme.snssdk.com/aweme/v1/playwm/?video_id=v0200f710000bs23isv327mm1tie6pe0&ratio=720p&line=0
+                                val url1 = video?.get("play_addr")?.jsonObject?.get("url_list")?.jsonArray?.firstOrNull()?.jsonPrimitive?.content?.replace("playwm", "play")?.split("&")?.first()
+                                //videoUrl = url1?.let { getRedirectURL(it)?.split("?")?.firstOrNull() }?:url1
+                                if (url1.isNullOrBlank()) {
                                     log.warn("fail to get videoUrl: originUrl=$url")
                                     map[Spider.RET] = Spider.KO
                                     map[Spider.MSG] = "fail to get videoUrl"
                                     return map
-                                }else{
-                                    map[Spider.VIDEO] = videoUrl
+                                } else {
+                                    map[Spider.VIDEO] = url1
                                 }
 
                                 //map[Spider.MUSIC] = e["music"]?.jsonObject?.get("play_url")?.jsonObject?.get("uri")?.jsonPrimitive?.content
@@ -135,9 +150,11 @@ class DouYinSpider: ISpider{
     }
 }
 
+//https://www.iesdouyin.com/share/video/6933174036600081671/
+//三里屯街拍，祝愿大家高考顺利 https://v.douyin.com/JNDRc6L/ 复制此链接，打开【抖音短视频】，直接观看视频！
 fun main(args: Array<String>) {
     DouYinSpider()
-        .doParse("三里屯街拍，祝愿大家高考顺利 https://v.douyin.com/JNDRc6L/ 复制此链接，打开【抖音短视频】，直接观看视频！")
+        .doParse("https://v.douyin.com/JNDRc6L/")
         .forEach {
             println("${it.key}=${it.value}")
         }

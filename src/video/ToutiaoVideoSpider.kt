@@ -33,14 +33,13 @@ import java.io.IOException
 class ToutiaoVideoSpider(binary: String? = null) : SeleniumSpider(binary)  {
     private val log: Logger = LoggerFactory.getLogger("ToutiaoVideoSpider")
     override val regPattern = "http(s)?://(m|www)\\.toutiaoimg\\.(com|cn)/(a|i)\\S+"
-    override val errMsg =
-        "链接中有这些字符：toutiaoimg.cn"
+    override val errMsg = "链接中需有这些字符：toutiaoimg.cn"
 
 
 
     override fun doParse(url: String): Map<String, String?> {
         val map = mutableMapOf<String, String?>()
-
+        log.info("parse url=$url")
         val driver: WebDriver = ChromeDriver(chromeOptions)
         try {
             driver.get(url)// 目标地址

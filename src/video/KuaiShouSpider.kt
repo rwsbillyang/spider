@@ -61,7 +61,7 @@ class KuaiShouSpider(binary: String? = null) : SeleniumSpider(binary) {
     //https://video.kuaishou.com/short-video/3x427dag2cd4je6?authorId=3xc4zhidhjika4a&streamSource=find&area=homexxbrilliant
     override fun doParse(url: String): Map<String, String?> {
         val map = mutableMapOf<String, String?>()
-        val url2 = decodeHttpUrl(url.replace("kuaishouapp.com","kuaishou.com")).split('?').first()
+        val url2 = url.replace("kuaishouapp.com","kuaishou.com").split('?').first()
 
         log.info("originUrl=$url, url=$url2")
 
@@ -102,7 +102,7 @@ class KuaiShouSpider(binary: String? = null) : SeleniumSpider(binary) {
 //这个家，我怕是回不去了！#超级段子手计划 https://v.kuaishou.com/bI3JFM 复制此消息，打开【快手】直接观看！
 fun main(args: Array<String>) {
     KuaiShouSpider("/Users/bill/git/youke/server/app/mainApp/chromedriver")
-        .doParse("这个家，我怕是回不去了！#超级段子手计划 https://v.kuaishou.com/bI3JFM 复制此消息，打开【快手】直接观看！")
+        .doParse("https://v.kuaishou.com/bI3JFM")
         .forEach {
             println("${it.key}=${it.value}")
         }

@@ -21,11 +21,14 @@ package com.github.rwsbillyang.spider.news
 import com.github.rwsbillyang.spider.*
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 import java.io.IOException
 
 //TODO: 文章图片不能展示，需特殊处理
 class SpiderCM163: ISpider {
+    private val log: Logger = LoggerFactory.getLogger("SpiderCM163")
     override val regPattern = "http(s)?://c\\.m\\.163\\.com/\\S+"
     override val errMsg = "请确认链接是否以开头： https://c.m.163.com/"
 
@@ -55,7 +58,7 @@ class SpiderCM163: ISpider {
 
     override fun doParse(url: String): Map<String, String?> {
         val map = mutableMapOf<String, String?>()
-
+        log.info("doParse, url=$url")
             try {
                 val doc: Document =
                     Jsoup.connect(url).timeout(20 * 1000).userAgent(Spider.UAs_WX[Spider.UAs_WX.indices.random()]).followRedirects(true).get()
