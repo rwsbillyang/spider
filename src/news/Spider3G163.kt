@@ -19,8 +19,11 @@
 package com.github.rwsbillyang.spider.news
 
 import com.github.rwsbillyang.spider.*
+import org.jsoup.Jsoup
+import org.jsoup.nodes.Document
+import java.io.IOException
 
-class Spider3G163: PageStreamParser(), ISpider {
+class Spider3G163:PageStreamParser(Spider.UAs_PC), ISpider {
     override val regPattern = "http(s)?://3g\\.163\\.com/\\S+"
     override val errMsg = "请确认链接是否以开头： https://3g.163.com/"
 
@@ -38,14 +41,13 @@ class Spider3G163: PageStreamParser(), ISpider {
             ),
             ExtractRule(
                 Spider.CONTENT, MultiLineRule(
-                    EqualRule("<div class=\"page js-page on\">"),
-                    EqualRule("<div class=\"otitle_editor\">")
+                    PrefixRule("<div class=\"page js-page on"),
+                    EqualRule("</div>")
                 )
             ),
         )
 
-    //https://3g.163.com/all/article/DB8SPSIU0001875P.html
-    //https://3g.163.com/all/article/DB85P66L0001899O.html
+
     override fun doParse(url: String): Map<String, String?> {
         val map = mutableMapOf<String, String?>()
         getPageAndParse(url, map)
@@ -55,5 +57,47 @@ class Spider3G163: PageStreamParser(), ISpider {
         return map
 
     }
+
+
+    //it's also works well
+     fun doParse2(url: String): Map<String, String?> {
+        val map = mutableMapOf<String, String?>()
+
+        try {
+            val doc: Document =
+                Jsoup.connect(url).timeout(20 * 1000).userAgent(Spider.UAs_PC[Spider.UAs_PC.indices.random()])
+                    .followRedirects(true).get()
+            map[Spider.TITLE] = doc.select("h1.title").text()
+            map[Spider.IMGURL] = doc.select("meta[property=og:image]").attr("content")
+            map[Spider.TAG] = doc.select("meta[property=article:tag]").attr("content")
+            map[Spider.BRIEF] = doc.select("meta[property=og:description]").attr("content")
+
+            map[Spider.USER] = "网易新闻"
+            map[Spider.LINK] = url.split("?").first()
+
+            val text = doc.select("div.content > div.page").html()
+
+            map[Spider.CONTENT] = text
+
+            map[Spider.RET] = Spider.OK
+            map[Spider.MSG] = "恭喜，解析成功，请编辑保存！"
+        } catch (e: IOException) {
+            e.printStackTrace()
+            map[Spider.RET] = Spider.KO
+            map[Spider.MSG] = "获取文章内容超时，请重试"
+        }
+
+        return map
+
+    }
 }
 
+fun main(args: Array<String>) {
+    //https://3g.163.com/all/article/DB8SPSIU0001875P.html
+    //https://3g.163.com/all/article/DB85P66L0001899O.html
+    //https://3g.163.com/news/article/G3RFDHQF000189FH.html
+    Spider3G163().doParse("https://3g.163.com/news/article/G3K55190000189FH.html?clickfrom=index2018_news_newslist#offset=0")
+        .forEach {
+            println("${it.key}=${it.value}")
+        }
+}

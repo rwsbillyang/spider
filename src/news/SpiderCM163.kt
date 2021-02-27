@@ -58,7 +58,7 @@ class SpiderCM163: ISpider {
 
             try {
                 val doc: Document =
-                    Jsoup.connect(url).timeout(20 * 1000).userAgent(Spider.UAs[0]).followRedirects(true).get()
+                    Jsoup.connect(url).timeout(20 * 1000).userAgent(Spider.UAs_WX[Spider.UAs_WX.indices.random()]).followRedirects(true).get()
 
                 map[Spider.TAG] = doc.select("meta[name=keywords]").attr("content")
                 map[Spider.BRIEF] = doc.select("meta[name=description]").attr("content")

@@ -30,12 +30,13 @@ import org.slf4j.LoggerFactory
 import java.io.IOException
 
 
-
 //网页html全部在一行，PageStreamParser已不适用
-class ToutiaoSpider:  ISpider {
+
+class ToutiaoSpider : ISpider {
     private val log: Logger = LoggerFactory.getLogger("ToutiaoSpider")
-    override val regPattern = "http(s)?://(m|www)\\.toutiao(cdn)?\\.com/\\S+"
-    override val errMsg = "请确认链接是否包含： toutiao.com 或 toutiaocdn.com"
+    override val regPattern = "http(s)?://(m|www)\\.toutiao(cdn)?\\.(com|cn)/(a|i)\\S+"
+    override val errMsg =
+        "只支持头条文章和微头条 链接中有这些字符：toutiao.com 或 toutiaocdn.com"
 
 //    override val extractRules =
 //        arrayOf(
@@ -48,7 +49,6 @@ class ToutiaoSpider:  ISpider {
 //        )
 
 
-
     //https://www.toutiao.com/i6525188057665110531/ -> https://m.toutiao.com/i6525188057665110531/info/v2/
     //https://m.toutiao.com/i6525188057665110531/ -> https://m.toutiao.com/i6525188057665110531/info/v2/
     //https://www.toutiao.com/a6931886311808827912/ -> https://m.toutiao.com/i6931886311808827912/info/v2/
@@ -56,10 +56,10 @@ class ToutiaoSpider:  ISpider {
     override fun doParse(url: String): Map<String, String?> {
         val map = mutableMapOf<String, String?>()
         log.info("parse url=$url")
-        val newUrl = url.replace("toutiaocdn.com","toutiao.com").split("?").first()
+        val newUrl = url.replace(Regex("toutiao(cdn|img).(com|cn)"), "toutiao.com").split("?").first()
         log.info("newUrl=$newUrl")
-        val id = newUrl.substringAfter("toutiao.com/").substringBefore('/').replace('a','i')
-        val apiUrl="https://m.toutiao.com/$id/info/v2/"
+        val id = newUrl.substringAfter("toutiao.com/").substringBefore('/').replace('a', 'i')
+        val apiUrl = "https://m.toutiao.com/$id/info/v2/"
         log.info("apiUrl=$apiUrl")
 
 
@@ -67,27 +67,40 @@ class ToutiaoSpider:  ISpider {
             val con = getConn(apiUrl)
             val res: Connection.Response = con.ignoreContentType(true).timeout(10000).execute()
             val json = Json.parseToJsonElement(res.body()) as? JsonObject
-            val isSuccess = json?.get("success")?.jsonPrimitive?.boolean?:false
-            if(isSuccess){
+            val isSuccess = json?.get("success")?.jsonPrimitive?.boolean ?: false
+            if (isSuccess) {
                 json?.get("data")?.jsonObject?.let {
                     map[Spider.RET] = Spider.OK
                     map[Spider.LINK] = newUrl
 
-                    map[Spider.USER] = it.get("source")?.jsonPrimitive?.content
-                    map[Spider.TITLE] = it.get("title")?.jsonPrimitive?.content
-                    //map[Spider.BRIEF] = it.get("")
-                    val content = it.get("content")?.jsonPrimitive?.content
-                    map[Spider.CONTENT] = content
+                    val content = it["content"]?.jsonPrimitive?.content
+                    if (content.isNullOrBlank()) { //微头条
+                        val thread = it["thread"]?.jsonObject
 
-                    map[Spider.IMGURL] = HtmlImgUtil.getImageSrc(content)?.firstOrNull()?: it.get("media_user")?.jsonObject?.get("avatar_url")?.jsonPrimitive?.content
+                        val threadBase = thread?.get("thread_base")?.jsonObject
+                        map[Spider.CONTENT] = threadBase?.get("content")?.jsonPrimitive?.content?.replace("\n","<br>")
+                        map[Spider.USER] = threadBase?.get("user")?.jsonObject?.get("info")?.jsonObject?.get("name")?.jsonPrimitive?.content
+                        map[Spider.TITLE] = threadBase?.get("title")?.jsonPrimitive?.content?.substring(0, 30)
+
+                        val share = thread?.get("share")?.jsonObject
+                        map[Spider.IMGURL] = share?.get("share_icon")?.jsonPrimitive?.content
+                        map[Spider.BRIEF] = share?.get("share_desc")?.jsonPrimitive?.content
+                    } else {
+                        //正常的头条内容
+                        map[Spider.CONTENT] = content
+                        map[Spider.USER] = it["source"]?.jsonPrimitive?.content
+                        map[Spider.TITLE] = it["title"]?.jsonPrimitive?.content
+                        map[Spider.IMGURL] = HtmlImgUtil.getImageSrc(content)?.firstOrNull()
+                            ?: it.get("media_user")?.jsonObject?.get("avatar_url")?.jsonPrimitive?.content
+                        //map[Spider.BRIEF] = it.get("")
+                    }
 
                     return map
                 }
             }
-        }catch (e:Exception){
+        } catch (e: Exception) {
             e.printStackTrace()
         }
-
 
         map[Spider.RET] = Spider.KO
         map[Spider.MSG] = "此链接可能不支持，换一个地方链接试试吧"
@@ -96,11 +109,11 @@ class ToutiaoSpider:  ISpider {
     }
 
 
-
     private fun doParseBasedInJsoup(url: String, map: MutableMap<String, String?>) {
         try {
             val doc: Document =
-                Jsoup.connect(url).timeout(20 * 1000).userAgent(Spider.UAs[0]).followRedirects(true).get()
+                Jsoup.connect(url).timeout(20 * 1000).userAgent(Spider.UAs_WX[Spider.UAs_WX.indices.random()])
+                    .followRedirects(true).get()
 
             //https://m.toutiao.com/i6931886311808827912/info/v2/
             var text: String = doc.select("title").text()
@@ -113,7 +126,7 @@ class ToutiaoSpider:  ISpider {
 //            map[Spider.IMGURL] = text
 
             val es: Elements = doc.select("article")
-            if(es.size > 0){
+            if (es.size > 0) {
                 text = es[0].html()
                 map[Spider.CONTENT] = text
 
@@ -137,11 +150,13 @@ class ToutiaoSpider:  ISpider {
         }
     }
 }
+
 //https://www.toutiao.com/a6932388257619657228/
 //https://m.toutiaocdn.com/i6930596509947871747/?app=news_article_lite&timestamp=1614248713&use_new_style=1&req_id=202102251825130101351551474403EE48&group_id=6930596509947871747&share_token=c7d8f7b1-122d-43b9-a777-e335a8288176
+//微头条：https://m.toutiaocdn.com/i1692743955618829/ -> https://www.toutiao.com/w/i1692743955618829/
 fun main(args: Array<String>) {
-    ToutiaoSpider().doParse("https://m.toutiaocdn.com/i6930596509947871747/?app=news_article_lite&timestamp=1614248713&use_new_style=1&req_id=202102251825130101351551474403EE48&group_id=6930596509947871747&share_token=c7d8f7b1-122d-43b9-a777-e335a8288176")
+    ToutiaoSpider().doParse("https://m.toutiaoimg.cn/i6911200660990263821/")
         .forEach {
-        println("${it.key}=${it.value}")
-    }
+            println("${it.key}=${it.value}")
+        }
 }

@@ -21,7 +21,7 @@ package com.github.rwsbillyang.spider.news
 import com.github.rwsbillyang.spider.*
 
 //TODO: 里面的视频有问题
-class Spider163: PageStreamParser(), ISpider {
+class Spider163: PageStreamParser(Spider.UAs_PC), ISpider {
     override val regPattern = "http(s)?://(news|www)?\\.?163\\.com/\\S+"
     override val errMsg = "请确认链接是否以开头： https://3g.163.com/"
 

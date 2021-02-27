@@ -39,7 +39,7 @@ class BaiduSpider : ISpider {
         log.info("parse url=$url")
         try {
             val doc: Document =
-                Jsoup.connect(url).timeout(20 * 1000).userAgent(Spider.UAs[0]).followRedirects(true).get()
+                Jsoup.connect(url).timeout(20 * 1000).userAgent(Spider.UAs_PC[Spider.UAs_PC.indices.random()]).followRedirects(true).get()
 
             //https://m.toutiao.com/i6931886311808827912/info/v2/
             var text: String = doc.select("title").text()

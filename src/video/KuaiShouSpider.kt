@@ -19,13 +19,15 @@
 package com.github.rwsbillyang.spider.video
 
 
+import com.github.rwsbillyang.spider.SeleniumSpider
 import com.github.rwsbillyang.spider.Spider
 import org.openqa.selenium.By
 import org.openqa.selenium.WebDriver
 import org.openqa.selenium.WebElement
 import org.openqa.selenium.chrome.ChromeDriver
-import org.openqa.selenium.chrome.ChromeOptions
 import org.openqa.selenium.support.ui.WebDriverWait
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import java.io.IOException
 
 
@@ -41,31 +43,10 @@ import java.io.IOException
  * https://github.com/bajingxiaozi/video_parse/blob/master/src/main/java/com/xyf/video/parse/KuaishouLinkParse.java
  * https://docs.tenapi.cn/kuaishou.html
  * */
-class KuaiShouSpider(binary: String? = null) : VideoSpider() {
-    override val regPattern = "[^x00-xff]*\\s*http(s)?://(\\w|-)+\\.kuaishou(app)?\\.com/\\S+\\s*[^x00-xff]*"
-    override val errMsg = "请确认链接是否包含： https://v.kuaishou.com/ 或 https://v.kuaishouapp.com/"
+class KuaiShouSpider(binary: String? = null) : SeleniumSpider(binary) {
+    private val log: Logger = LoggerFactory.getLogger("KuaiShouSpider")
 
-    init {
-        System.setProperty("webdriver.chrome.driver", binary?:"./chromedriver") // 必须加入
-    }
-    private val chromeOptions = ChromeOptions().apply {
-        setHeadless(true) //已包含addArguments("--disable-gpu")
-        addArguments("--user-agent="+Spider.UAs[2])
-        addArguments("--blink-settings=imagesEnabled=false") //禁用图片加载
-        addArguments("--incognito")
-        addArguments("--window-size=400,300")
-        addArguments("--disable-dev-shm-usage")
-        addArguments("--disable-extensions")
-        addArguments("--lang=zh-CN")
-        addArguments("--disable-images")
-        addArguments("--single-process")
-        addArguments ("--no-sandbox")
-
-        //setBinary(binary?:"./chromedriver") //not work
-    }
-
-
-    override fun decodeHttpUrl(originUrl: String): String {
+    private fun decodeHttpUrl(originUrl: String): String {
         val start = originUrl.indexOf("http")
         val end = originUrl.indexOf("复制")
         return if(end < 0) originUrl.substring(start).trim()
@@ -101,20 +82,19 @@ class KuaiShouSpider(binary: String? = null) : VideoSpider() {
             map[Spider.RET] = Spider.OK
             map[Spider.MSG] = "恭喜，解析成功"
 
-            return map
         } catch (e: IOException) {
             log.error("${e.message},originUrl=$url, url=$url2")
             map[Spider.MSG] = "获取内容时IO错误，请稍后再试"
+            map[Spider.RET] = Spider.KO
         }catch (e: Exception){
             log.error("${e.message},originUrl=$url, url=$url2")
             map[Spider.MSG] = "获取内容时出现错误，请稍后再试"
+            map[Spider.RET] = Spider.KO
         }
         finally {
             driver.close()
         }
 
-        map[Spider.RET] = Spider.KO
-        map[Spider.MSG] = "获取内容时网络超时，请重试"
         return map
     }
 }

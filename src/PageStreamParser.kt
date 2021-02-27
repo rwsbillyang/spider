@@ -121,7 +121,7 @@ object ParseLineResult{
 /**
  * 对请求获取的网页字符串流进行处理，逐行检查获取所需的值
  * */
-abstract class PageStreamParser {
+abstract class PageStreamParser(val uas: Array<String>) {
     val log: Logger = LoggerFactory.getLogger("PageStreamParser")
 
     abstract val extractRules: Array<ExtractRule>
@@ -139,7 +139,7 @@ abstract class PageStreamParser {
             conn.doOutput = true
             conn.connectTimeout = 10000
             conn.defaultUseCaches = true
-            conn.setRequestProperty("User-agent", Spider.UAs[0])
+            conn.setRequestProperty("User-agent", uas[uas.indices.random()])
             conn.setRequestProperty("Charset",encode)
             conn.connect() //本方法不会自动重连
 
