@@ -20,7 +20,7 @@ package com.github.rwsbillyang.spider
 
 import org.openqa.selenium.chrome.ChromeOptions
 
-abstract class SeleniumSpider(binary: String? = null): ISpider {
+abstract class SeleniumSpider(binary: String? = null, uas: Array<String> = Spider.UAs_WX): ISpider {
     override val regPattern = "[^x00-xff]*\\s*http(s)?://(\\w|-)+\\.kuaishou(app)?\\.com/\\S+\\s*[^x00-xff]*"
     override val errMsg = "请确认链接是否包含： https://v.kuaishou.com/ 或 https://v.kuaishouapp.com/"
 
@@ -29,7 +29,7 @@ abstract class SeleniumSpider(binary: String? = null): ISpider {
     }
     val chromeOptions = ChromeOptions().apply {
         setHeadless(true) //已包含addArguments("--disable-gpu")
-        addArguments("--user-agent="+Spider.UAs_WX[Spider.UAs_WX.indices.random()])
+        addArguments("--user-agent="+uas[uas.indices.random()])
         addArguments("--blink-settings=imagesEnabled=false") //禁用图片加载
         addArguments("--incognito")
         addArguments("--window-size=400,300")

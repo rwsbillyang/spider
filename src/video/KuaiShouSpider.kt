@@ -42,8 +42,10 @@ import java.io.IOException
  * 其它参考实现：
  * https://github.com/bajingxiaozi/video_parse/blob/master/src/main/java/com/xyf/video/parse/KuaishouLinkParse.java
  * https://docs.tenapi.cn/kuaishou.html
+ *
+ * 如果改用微信 user agent 有些链接会有问题，如：https://v.kuaishouapp.com/s/ZvjI41Js
  * */
-class KuaiShouSpider(binary: String? = null) : SeleniumSpider(binary) {
+class KuaiShouSpider(binary: String? = null, uas: Array<String> = Spider.UAs_Mobile) : SeleniumSpider(binary, uas) {
     private val log: Logger = LoggerFactory.getLogger("KuaiShouSpider")
 
     private fun decodeHttpUrl(originUrl: String): String {
@@ -68,7 +70,7 @@ class KuaiShouSpider(binary: String? = null) : SeleniumSpider(binary) {
         val driver: WebDriver = ChromeDriver(chromeOptions)
         try {
             driver.get(url2)// 目标地址
-            val video: WebElement = WebDriverWait(driver, 30)
+            val video: WebElement = WebDriverWait(driver, 15)
                 .until { d -> driver.findElement(By.tagName("video")) }
 
             map[Spider.VIDEO_COVER] = video.getAttribute("poster")?.split("&")?.firstOrNull()
@@ -100,9 +102,11 @@ class KuaiShouSpider(binary: String? = null) : SeleniumSpider(binary) {
 }
 
 //这个家，我怕是回不去了！#超级段子手计划 https://v.kuaishou.com/bI3JFM 复制此消息，打开【快手】直接观看！
+//https://v.kuaishouapp.com/s/ZvjI41Js
+// https://v.kuaishou.com/bI3JFM
 fun main(args: Array<String>) {
     KuaiShouSpider("/Users/bill/git/youke/server/app/mainApp/chromedriver")
-        .doParse("https://v.kuaishou.com/bI3JFM")
+        .doParse("https://v.kuaishouapp.com/s/ZvjI41Js")
         .forEach {
             println("${it.key}=${it.value}")
         }
