@@ -82,7 +82,7 @@ object Spider {
         if (spider == null) {
             val map = mutableMapOf<String, String?>()
             map[Spider.RET] = Spider.KO
-            map[Spider.MSG] = "暂只支持微信公众号文章，实验性支持：今日头条、快手短视频，请换个链接试试吧" //快手短视频、今日头条、
+            map[Spider.MSG] = "暂只支持微信公众号文章，实验性支持：今日头条、抖音短视频、快手短视频，请换个链接试试吧" //快手短视频、今日头条、
             return map
         }
         val isInvalid: Boolean = Pattern.matches(spider.regPattern, url)
