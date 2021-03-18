@@ -32,7 +32,7 @@ abstract class SeleniumSpider(binary: String? = null, uas: Array<String> = Spide
         addArguments("--user-agent="+uas[uas.indices.random()])
         addArguments("--blink-settings=imagesEnabled=false") //禁用图片加载
         addArguments("--incognito")
-        addArguments("--window-size=400,300")
+        addArguments("--window-size=360,640")
         addArguments("--disable-dev-shm-usage")
         addArguments("--disable-extensions")
         addArguments("--lang=zh-CN")

@@ -103,13 +103,15 @@ object Spider {
 
     private var douyinSpider: DouYinSpider? = null
 
-
+    fun toutiaoVidepoSpider(binary: String? = null): ToutiaoVideoSpider{
+         if (toutiaoVideoSpider == null) toutiaoVideoSpider = ToutiaoVideoSpider(binary)
+        return toutiaoVideoSpider!!
+    }
     private fun factory(url: String): ISpider? {
         return if (url.contains("mp.weixin.qq.com")) {
             wechatArticleSpider
         }else if(url.contains(".toutiaoimg")){
-            if (toutiaoVideoSpider == null) toutiaoVideoSpider = ToutiaoVideoSpider()
-            toutiaoVideoSpider
+            toutiaoVidepoSpider()
         }
         else if(url.contains(".toutiao")){
             if (toutiaoNewsSpider == null) toutiaoNewsSpider = ToutiaoSpider()

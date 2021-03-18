@@ -54,14 +54,14 @@ class DouYinSpider: ISpider{
     fun getRedirectURL(conn: Connection): String? {
         return conn.followRedirects(false).timeout(10000).execute().header("location")
     }
-    fun getRedirectURL(url: String): String? {
-        return Jsoup.connect(url)
-            .userAgent(Spider.UAs_WX[Spider.UAs_WX.indices.random()])
-            .ignoreContentType(true)
-            .followRedirects(false).timeout(10000)
-            .execute()
-            .header("location")
-    }
+//    fun getRedirectURL(url: String): String? {
+//        return Jsoup.connect(url)
+//            .userAgent(Spider.UAs_WX[Spider.UAs_WX.indices.random()])
+//            .ignoreContentType(true)
+//            .followRedirects(false).timeout(10000)
+//            .execute()
+//            .header("location")
+//    }
 
     // url:  "三里屯街拍，祝愿大家高考顺利 https://v.douyin.com/JNDRc6L/ 复制此链接，打开【抖音短视频】，直接观看视频！"
     override fun doParse(url: String): Map<String, String?>{
@@ -75,7 +75,7 @@ class DouYinSpider: ISpider{
                 url
             }else{
                 //https://www.iesdouyin.com/share/video/6846660517122084096/?region=CN&mid=6846660529788947213&u_code=kja81591&titleType=title&utm_source=copy_link&utm_campaign=client_share&utm_medium=android&app=aweme
-                getRedirectURL(url)
+                getRedirectURL(url,Spider.UAs_WX)
             }
             log.info("parse iesUrl=$iesUrl")
 
@@ -90,7 +90,7 @@ class DouYinSpider: ISpider{
             val apiUrl = "https://www.iesdouyin.com/web/api/v2/aweme/iteminfo/?item_ids=$mid"
 
             //https://www.iesdouyin.com/web/api/v2/aweme/iteminfo/?item_ids=6846660517122084096
-            val con = getConn(apiUrl)
+            val con = getConn(apiUrl, Spider.UAs_WX)
             val res: Connection.Response = con.ignoreContentType(true).timeout(10000).execute()
 
             //https://github.com/Kotlin/kotlinx.serialization/blob/master/docs/json.md#json-elements

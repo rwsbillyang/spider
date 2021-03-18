@@ -83,9 +83,10 @@ class ToutiaoVideoSpider(binary: String? = null) : SeleniumSpider(binary)  {
 }
 
 //头条视频：pc上跳转到西瓜视频，微信里不跳转 https://m.toutiaoimg.cn/i6911200660990263821/
+//https://m.toutiaoimg.cn/a6904293095572144644/?app=news_article_lite&is_hit_share_recommend=0&share_token=8393acac-4faa-44b8-8fb4-9d130b6f2fc5
 fun main(args: Array<String>) {
     ToutiaoVideoSpider("/Users/bill/git/youke/server/app/mainApp/chromedriver")
-        .doParse("https://m.toutiaoimg.cn/i6911200660990263821/")
+        .doParse("https://m.toutiao.com/a6940586444830278179/")
         .forEach {
             println("${it.key}=${it.value}")
         }
