@@ -185,8 +185,10 @@ class ToutiaoSpider() : ISpider {
 //fail【上海警方破获制销违禁减肥食品案，郭美美涉案被抓 - 今日头条】https://m.toutiao.com/is/eLUafUy/
 //炖鸡肉时，记住别直接焯水，教你正确做法，鸡肉鲜香滑嫩不腥不柴 - 今日头条】https://m.toutiao.com/is/eLUQAbF/
 //资深班主任：长大会有出息的学生，在班级的成绩多半是这个排名 - 今日头条】https://m.toutiaocdn.net/a6940884912362865183/?app=news_article&is_hit_share_recommend=0&share_token=a146bed7-329d-409d-8f54-77be583cd85b&tt_from=copy_link&utm_source=copy_link&utm_medium=toutiao_android&utm_campaign=client_share
+//fail【极盗者 - 今日头条】https://m.toutiao.com/is/eLuCkLP/
+//fail 【海峡新干线: 杨洁篪：美国没有资格居高临下同中国说话，中国人不吃这一套！#外交  #海峡新干线  #中美高层战略对话 #新闻 - 今日头条】https://m.toutiao.com/is/eLQKs5K/
 fun main(args: Array<String>) {
-    ToutiaoSpider().doParse("https://m.toutiaocdn.net/a6940884912362865183/")
+    ToutiaoSpider().doParse("https://m.toutiao.com/is/eLQKs5K/")
         .forEach {
             println("${it.key}=${it.value}")
         }
