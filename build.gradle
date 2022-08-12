@@ -1,15 +1,17 @@
 buildscript {
     repositories {
         mavenLocal()
+        maven{ url 'https://maven.aliyun.com/nexus/content/groups/public/'}
         mavenCentral()
-        jcenter()
+        maven { url 'https://jitpack.io' }
+        //jcenter()
         google()
     }
 
     dependencies {
+        classpath "net.sf.proguard:proguard-gradle:$proguardVersion"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "org.jetbrains.kotlin:kotlin-serialization:$kotlin_version"
-
     }
 }
 
@@ -19,7 +21,7 @@ apply plugin: 'kotlinx-serialization'
 apply plugin: 'maven-publish'
 
 group 'com.github.rwsbillyang'
-version '1.0.4'
+version "$spiderVersion"
 
 
 sourceSets {
@@ -30,19 +32,22 @@ sourceSets {
 }
 
 
-sourceCompatibility = 1.8
+sourceCompatibility = "$jdkVersion"
+targetCompatibility = "$jdkVersion"
+
 compileKotlin {
-    kotlinOptions.jvmTarget = "1.8"
+    kotlinOptions.jvmTarget = "$jdkVersion"
 }
 compileTestKotlin {
-    kotlinOptions.jvmTarget = "1.8"
+    kotlinOptions.jvmTarget = "$jdkVersion"
 }
+
 
 
 repositories {
     mavenLocal()
     mavenCentral()
-    jcenter()
+    //jcenter()
     google()
 }
 
@@ -50,18 +55,14 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     implementation "ch.qos.logback:logback-classic:$logback_version"
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinx_serialization_version") // JVM dependency
-    implementation 'org.jsoup:jsoup:1.13.1'
+    implementation 'org.jsoup:jsoup:1.14.3'
 
-    implementation 'org.seleniumhq.selenium:selenium-java:3.141.59'
-    implementation 'org.seleniumhq.selenium:selenium-chrome-driver:3.141.59'
+    implementation 'org.seleniumhq.selenium:selenium-java:4.3.0'
+    implementation 'org.seleniumhq.selenium:selenium-chrome-driver:4.3.0'
 }
 publishing {
     publications {
         maven(MavenPublication) {
-//            artifact "./build/libs/${rootProject.name}-${version}.jar"
-//            groupId group
-//            artifactId "${rootProject.name}"
-//            version version
             from components.java
         }
     }
