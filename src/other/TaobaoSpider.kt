@@ -34,6 +34,8 @@ import org.openqa.selenium.support.ui.WebDriverWait
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.io.IOException
+import java.time.Duration
+import java.util.concurrent.TimeUnit
 
 @Serializable
 class TaobaoProduct(
@@ -71,12 +73,12 @@ class TaobaoSpider(private val username: String, private val password: String, b
         try {
             log.info("parse url=$url")
             driver.get(url)// 目标地址
-            val body: WebElement =  WebDriverWait(driver, 15)
+            val body: WebElement =  WebDriverWait(driver, Duration.ofSeconds(15))
                 .until { d -> driver.findElement(By.tagName("body")) }
             log.info(body.text)
 
             //注意：class必须严格字符串匹配，包括空格
-            val itemList = WebDriverWait(driver, 15)
+            val itemList = WebDriverWait(driver, Duration.ofSeconds(15))
                 .until { d -> driver.findElements(By.xpath("//div[@class='item J_MouserOnverReq  ']")) }
 
             var number = 1

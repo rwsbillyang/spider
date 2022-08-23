@@ -29,6 +29,7 @@ import org.openqa.selenium.support.ui.WebDriverWait
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.io.IOException
+import java.time.Duration
 
 
 /**
@@ -70,7 +71,7 @@ class KuaiShouSpider(binary: String? = null, uas: Array<String> = Spider.UAs_Mob
         val driver: WebDriver = ChromeDriver(chromeOptions)
         try {
             driver.get(url2)// 目标地址
-            val video: WebElement = WebDriverWait(driver, 15)
+            val video: WebElement = WebDriverWait(driver, Duration.ofSeconds(15))
                 .until { d -> driver.findElement(By.tagName("video")) }
 
             map[Spider.VIDEO_COVER] = video.getAttribute("poster")?.split("&")?.firstOrNull()

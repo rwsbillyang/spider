@@ -24,7 +24,6 @@ import com.github.rwsbillyang.spider.ISpider
 import com.github.rwsbillyang.spider.Spider
 import kotlinx.serialization.json.*
 import org.jsoup.Connection
-import org.jsoup.Jsoup
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.io.IOException

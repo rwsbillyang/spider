@@ -28,6 +28,7 @@ import org.openqa.selenium.support.ui.WebDriverWait
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.io.IOException
+import java.time.Duration
 
 //https://m.toutiaoimg.cn/i6912100384953598475/
 class ToutiaoVideoSpider(binary: String? = null) : SeleniumSpider(binary)  {
@@ -43,7 +44,7 @@ class ToutiaoVideoSpider(binary: String? = null) : SeleniumSpider(binary)  {
         val driver: WebDriver = ChromeDriver(chromeOptions)
         try {
             driver.get(url)// 目标地址
-            val video: WebElement = WebDriverWait(driver, 30)
+            val video: WebElement = WebDriverWait(driver, Duration.ofSeconds(30))
                 .until { d -> driver.findElement(By.tagName("video")) }
 
             map[Spider.LINK] = url.split("?").first()
@@ -54,7 +55,7 @@ class ToutiaoVideoSpider(binary: String? = null) : SeleniumSpider(binary)  {
 
             driver.findElement(By.cssSelector("div.video-title-unfold")).let {
                 it.click() //点击后才出现author信息
-                val author: WebElement = WebDriverWait(driver, 10)
+                val author: WebElement = WebDriverWait(driver, Duration.ofSeconds(10))
                 .until { d -> driver.findElement(By.cssSelector("div.author")) }
                 map[Spider.USER] = author.findElement(By.cssSelector("div.author-info-name"))?.text?:"头条"
                 map[Spider.IMGURL] = author.findElement(By.cssSelector("img.author-avatar-img"))?.getAttribute("src")
