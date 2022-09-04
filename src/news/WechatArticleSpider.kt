@@ -37,12 +37,14 @@ class WechatArticleSpider: PageStreamParser(Spider.UAs_WX), ISpider {
             ExtractRule(Spider.USER, ContainMatchRule("profile_nickname", ">", "<")),
             ExtractRule(Spider.USER2, PrefixMatchRule("d.nick_name", "\"", "\"")),
             ExtractRule(
-                Spider.CONTENT, MultiLineRule(
-                    ContainRule("id=\"js_content\""),
-                    EqualRule("</div>"),
-                    ContainRule("<section class=\"cps_inner cps_inner_list js_list_container js_product_container\">"),
-                    ContainRule("</section>")
-                )
+                //2022.9.4测试发现 微信文章中心内容不知何时已升级为单行
+                Spider.CONTENT, ContainMatchRule("id=\"js_content\"", ">", "</div>")
+//                Spider.CONTENT, MultiLineRule(
+//                    ContainRule("id=\"js_content\""),
+//                    EqualRule("</div>"),
+//                    ContainRule("<section class=\"cps_inner cps_inner_list js_list_container js_product_container\">"),
+//                    ContainRule("</section>")
+//                )
             ),
             ExtractRule(Spider.TAG, PrefixMatchRule("var _ori_article_type", "\"", "\"")),
             //ExtractRule(Spider.LINK, PrefixMatchRule("var msg_link", "\"", "\"")),
