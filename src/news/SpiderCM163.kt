@@ -19,6 +19,7 @@
 package com.github.rwsbillyang.spider.news
 
 import com.github.rwsbillyang.spider.*
+import com.github.rwsbillyang.spider.utils.HtmlImgUtil
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.slf4j.Logger
@@ -65,9 +66,9 @@ class SpiderCM163: ISpider {
 
                 map[Spider.TAG] = doc.select("meta[name=keywords]").attr("content")
                 map[Spider.BRIEF] = doc.select("meta[name=description]").attr("content")
-                map[Spider.TITLE] = doc.select("h1.header-title").text()
-                map[Spider.USER] = doc.select("div.header-subtitle-info > .s-source").text()
-                map[Spider.LINK] = doc.select("link[rel=canonical]").attr("href")?:url
+                map[Spider.TITLE] = doc.select("meta[property=og:title]").attr("content")
+                map[Spider.USER] = doc.select("div.header-subtitle-middle > p.s-source").text()
+                map[Spider.LINK] = url //doc.select("link[rel=canonical]").attr("href")?:url
 
                 val text = doc.select("article > div > div[^data-v-]").html()
                 map[Spider.IMGURL] = HtmlImgUtil.getImageSrc(text)?.firstOrNull()
@@ -88,7 +89,7 @@ class SpiderCM163: ISpider {
 
 fun main(args: Array<String>) {
     //https://c.m.163.com/news/a/G3IIMQ340539QLK6.html?spss=newsapp
-    SpiderCM163().doParse("https://c.m.163.com/news/a/G3MCJ3SK05199NPP.html")
+    SpiderCM163().doParse("https://c.m.163.com/news/a/HGOG88IB0553A9YH.html")
         .forEach {
             println("${it.key}=${it.value}")
         }

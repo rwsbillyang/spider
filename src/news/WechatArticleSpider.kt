@@ -19,6 +19,10 @@
 package com.github.rwsbillyang.spider.news
 
 import com.github.rwsbillyang.spider.*
+import com.github.rwsbillyang.spider.utils.ContainMatchRule
+import com.github.rwsbillyang.spider.utils.ExtractRule
+import com.github.rwsbillyang.spider.utils.PrefixMatchRule
+import com.github.rwsbillyang.spider.utils.StartIndexHint
 
 class WechatArticleSpider: PageStreamParser(Spider.UAs_WX), ISpider {
     override val regPattern = "http(s)?://mp\\.weixin\\.qq\\.com/\\S+"
@@ -26,19 +30,15 @@ class WechatArticleSpider: PageStreamParser(Spider.UAs_WX), ISpider {
 
     override val extractRules =
         arrayOf(
-            ExtractRule(Spider.TITLE, PrefixMatchRule("<meta property=\"og:title\"", "content=\"", "\"")),
-            ExtractRule(Spider.OGURL, PrefixMatchRule("<meta property=\"og:url\"", "content=\"", "\"")),
-            ExtractRule(Spider.IMGURL, PrefixMatchRule("<meta property=\"og:image\"", "content=\"", "\"")),
-            ExtractRule(
-                Spider.BRIEF,
-                PrefixMatchRule("<meta property=\"og:description\"", "content=\"", "\"")
-            ),
-
-            ExtractRule(Spider.USER, ContainMatchRule("profile_nickname", ">", "<")),
-            ExtractRule(Spider.USER2, PrefixMatchRule("d.nick_name", "\"", "\"")),
+            ExtractRule(Spider.TITLE, PrefixMatchRule("<meta property=\"og:title\"", "content=\"", "\""), StartIndexHint.AfterMatchStrIndex),
+            ExtractRule(Spider.OGURL, PrefixMatchRule("<meta property=\"og:url\"", "content=\"", "\""), StartIndexHint.AfterMatchStrIndex),
+            ExtractRule(Spider.IMGURL, PrefixMatchRule("<meta property=\"og:image\"", "content=\"", "\""), StartIndexHint.AfterMatchStrIndex),
+            ExtractRule(Spider.BRIEF, PrefixMatchRule("<meta property=\"og:description\"", "content=\"", "\""), StartIndexHint.AfterMatchStrIndex),
+            ExtractRule(Spider.USER, ContainMatchRule("profile_nickname", ">", "<"), StartIndexHint.AfterMatchStrIndex),
+            ExtractRule(Spider.USER2, PrefixMatchRule("d.nick_name", "\"", "\""), StartIndexHint.AfterMatchStrIndex),
             ExtractRule(
                 //2022.9.4测试发现 微信文章中心内容不知何时已升级为单行
-                Spider.CONTENT, ContainMatchRule("id=\"js_content\"", ">", "</div>")
+                Spider.CONTENT, ContainMatchRule("id=\"js_content\"", ">", "</div>"), StartIndexHint.AfterMatchStrIndex
 //                Spider.CONTENT, MultiLineRule(
 //                    ContainRule("id=\"js_content\""),
 //                    EqualRule("</div>"),
@@ -46,7 +46,7 @@ class WechatArticleSpider: PageStreamParser(Spider.UAs_WX), ISpider {
 //                    ContainRule("</section>")
 //                )
             ),
-            ExtractRule(Spider.TAG, PrefixMatchRule("var _ori_article_type", "\"", "\"")),
+            ExtractRule(Spider.TAG, PrefixMatchRule("var _ori_article_type", "\"", "\""), StartIndexHint.AfterMatchStrIndex),
             //ExtractRule(Spider.LINK, PrefixMatchRule("var msg_link", "\"", "\"")),
         )
 
@@ -60,3 +60,10 @@ class WechatArticleSpider: PageStreamParser(Spider.UAs_WX), ISpider {
     }
 }
 
+fun main(args: Array<String>) {
+    WechatArticleSpider()
+        .doParse("https://mp.weixin.qq.com/s/bDO07cqSymKIh0alRFhPhQ")
+        .forEach {
+            println("${it.key}=${it.value}")
+        }
+}

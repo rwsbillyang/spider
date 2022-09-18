@@ -21,7 +21,6 @@ package com.github.rwsbillyang.spider
 import com.github.rwsbillyang.spider.news.*
 import com.github.rwsbillyang.spider.video.DouYinSpider
 import com.github.rwsbillyang.spider.video.KuaiShouSpider
-import com.github.rwsbillyang.spider.video.ToutiaoVideoSpider
 import java.io.IOException
 import java.net.HttpURLConnection
 import java.net.MalformedURLException
@@ -102,20 +101,15 @@ object Spider {
     private val wechatArticleSpider = WechatArticleSpider()
     private var kuaiShouSpider: KuaiShouSpider? = null
     private var toutiaoNewsSpider: ToutiaoSpider? = null
-    private var toutiaoVideoSpider: ToutiaoVideoSpider? = null
+
     private var baiduSpider: BaiduSpider? = null
 
     private var douyinSpider: DouYinSpider? = null
 
-    fun toutiaoVidepoSpider(binary: String? = null): ToutiaoVideoSpider{
-         if (toutiaoVideoSpider == null) toutiaoVideoSpider = ToutiaoVideoSpider(binary)
-        return toutiaoVideoSpider!!
-    }
+
     private fun factory(url: String): ISpider? {
         return if (url.contains("mp.weixin.qq.com")) {
             wechatArticleSpider
-        }else if(url.contains(".toutiaoimg")){
-            toutiaoVidepoSpider()
         }
         else if(url.contains(".toutiao")){
             if (toutiaoNewsSpider == null) toutiaoNewsSpider = ToutiaoSpider()
@@ -135,7 +129,7 @@ object Spider {
         else if (url.contains("163.com")) {
             if(url.contains("//3g.163.com")) Spider3G163()
             else if(url.contains("//c.m.163.com")) SpiderCM163()
-            else Spider163()
+            else Spider3G163()
         }
         else {
             null

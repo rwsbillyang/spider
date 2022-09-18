@@ -144,7 +144,7 @@ class DouYinSpider: ISpider{
             }
 
         } catch (e: Exception) {
-            log.error("caused Exception, the url=$url")
+            log.error("Exception: ${e.message},  url=$url")
         }
 
         map[Spider.RET] = Spider.KO
@@ -158,7 +158,7 @@ class DouYinSpider: ISpider{
 //三里屯街拍，祝愿大家高考顺利 https://v.douyin.com/JNDRc6L/ 复制此链接，打开【抖音短视频】，直接观看视频！
 fun main(args: Array<String>) {
     DouYinSpider()
-        .doParse("https://v.douyin.com/LcK3g27/")
+        .doParse("https://v.douyin.com/JNDRc6L/")
         .forEach {
             println("${it.key}=${it.value}")
         }

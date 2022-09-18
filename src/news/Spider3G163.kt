@@ -19,40 +19,31 @@
 package com.github.rwsbillyang.spider.news
 
 import com.github.rwsbillyang.spider.*
+import com.github.rwsbillyang.spider.utils.*
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import java.io.IOException
 
-class Spider3G163:PageStreamParser(Spider.UAs_PC), ISpider {
-    override val regPattern = "http(s)?://3g\\.163\\.com/\\S+"
+class Spider3G163: PageStreamParser(Spider.UAs_WX), ISpider {
+    override val regPattern = "http(s)?://(3g|news|www)\\.163\\.com/\\S+"
     override val errMsg = "请确认链接是否以开头： https://3g.163.com/"
 
     override val extractRules =
         arrayOf(
-            ExtractRule(Spider.TITLE, PrefixMatchRule("<h1 class=\"title\"",">","<")),
-            ExtractRule(Spider.IMGURL, PrefixMatchRule("<meta property=\"og:image\"","content=\"","\"")),
-            ExtractRule(
-                Spider.TAG,
-                PrefixMatchRule("<meta property=\"article:tag\"","content=\"","\"")
-            ),
-            ExtractRule(
-                Spider.BRIEF,
-                PrefixMatchRule("<meta property=\"og:description\"","content=\"","\"")
-            ),
-            ExtractRule(
-                Spider.CONTENT, MultiLineRule(
-                    PrefixRule("<div class=\"page js-page on"),
-                    EqualRule("</div>")
-                )
-            ),
+            ExtractRule(Spider.TITLE, ContainMatchRule("<meta property=\"og:title\"","content=\"","_"),StartIndexHint.AfterMatchStrIndex),
+            ExtractRule(Spider.USER, PrefixMatchRule("<meta property=\"article:author\"","content=\"","\""),StartIndexHint.AfterMatchStrIndex),
+            ExtractRule(Spider.TAG, PrefixMatchRule("<meta property=\"article:tag\"","content=\"","\""),StartIndexHint.AfterMatchStrIndex),
+            ExtractRule(Spider.BRIEF,PrefixMatchRule("<meta property=\"og:description\"","content=\"","\""),StartIndexHint.AfterMatchStrIndex),
+            //ExtractRule(Spider.IMGURL, PrefixMatchRule("<meta property=\"og:image\"","content=\"","\""),StartIndexHint.AfterMatchStrIndex),
+            ExtractRule(Spider.CONTENT, MultiLineRule(PrefixRule("<article "), EqualRule("</article>"))),
         )
 
 
     override fun doParse(url: String): Map<String, String?> {
         val map = mutableMapOf<String, String?>()
         getPageAndParse(url, map)
+        map[Spider.IMGURL] = HtmlImgUtil.getImageSrc2(map[Spider.CONTENT])?.firstOrNull()
         map[Spider.LINK] = url
-        map[Spider.USER] = "网易"
 
         return map
 
@@ -94,7 +85,6 @@ class Spider3G163:PageStreamParser(Spider.UAs_PC), ISpider {
 
 fun main(args: Array<String>) {
     //https://3g.163.com/all/article/DB8SPSIU0001875P.html
-    //https://3g.163.com/all/article/DB85P66L0001899O.html
     //https://3g.163.com/news/article/G3RFDHQF000189FH.html
     Spider3G163().doParse("https://3g.163.com/news/article/G3K55190000189FH.html?clickfrom=index2018_news_newslist#offset=0")
         .forEach {

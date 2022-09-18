@@ -18,67 +18,120 @@
 
 package com.github.rwsbillyang.spider.news
 
-import com.github.rwsbillyang.spider.ISpider
+
+import com.github.rwsbillyang.spider.SeleniumSpider
 import com.github.rwsbillyang.spider.Spider
-import org.jsoup.Jsoup
-import org.jsoup.nodes.Document
-import org.jsoup.select.Elements
+import com.github.rwsbillyang.spider.utils.HtmlImgUtil
+
+import org.openqa.selenium.By
+import org.openqa.selenium.TimeoutException
+import org.openqa.selenium.WebDriver
+import org.openqa.selenium.WebElement
+import org.openqa.selenium.chrome.ChromeDriver
+import org.openqa.selenium.support.ui.WebDriverWait
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.io.IOException
+import java.time.Duration
 
-//https://www.ruanyifeng.com/blog/2019/06/http-referer.html
-class BaiduSpider : ISpider {
+class BaiduSpider(binary: String? = null) : SeleniumSpider(binary)  {
     private val log: Logger = LoggerFactory.getLogger("BaiduSpider")
 
-    override val regPattern = "http(s)?://baijiahao\\.baidu\\.com/\\S+"
-    override val errMsg = "请使用 http://baijiahao.baidu.com/ 开头的文章链接上传"
+    override val regPattern = "http(s)?://(baijiahao|news|mbd)\\.baidu\\.com/\\S+"
+    override val errMsg = "链接应为：baijiahao.baidu.com 或 news.baidu.com"
 
     override fun doParse(url: String): Map<String, String?> {
         val map = mutableMapOf<String, String?>()
         log.info("parse url=$url")
-        try {
-            val doc: Document =
-                Jsoup.connect(url).timeout(20 * 1000).userAgent(Spider.UAs_PC[Spider.UAs_PC.indices.random()]).followRedirects(true).get()
 
-            //https://m.toutiao.com/i6931886311808827912/info/v2/
-            var text: String = doc.select("title").text()
-            map[Spider.TITLE] = text
-
-//            text = doc.select("meta[name=description]").attr("content")
-//            map[Spider.BRIEF] = text
-
-
-            map[Spider.USER] = doc.select("span.account-authentication").text()
-
-            val es: Elements = doc.select("div.article-content")
-            if(es.size > 0){
-                text = es[0].html()
-                map[Spider.CONTENT] = text
-
-                //图片地址为空，从正文内容中寻找第一张
-                map[Spider.IMGURL] = doc.select("div.author-icon > a > img").attr("src")?:HtmlImgUtil.getImageSrc(text)?.firstOrNull()
-            }
-
-
-            map[Spider.LINK] = url
-            //map[Spider.USER] = "百家号"
-
-            map[Spider.RET] = Spider.OK
-            map[Spider.MSG] = "恭喜，解析成功，请编辑保存！"
-            return map
-        } catch (e: IOException) {
-            e.printStackTrace()
+         if(url.contains("baijiahao.") || url.contains("mbd.")){
+            parseBaiJiaHao(url, map)
+        }else if(url.contains("news")){
+            parseBaiDuNews(url, map)
+        }else{
+            log.warn("not support url=$url")
+            map[Spider.MSG] = "不支持链接，请使用baijiahao.baidu.com 或 news.baidu.com"
             map[Spider.RET] = Spider.KO
-            map[Spider.MSG] = "获取文章内容超时，请重试"
+        }
+        return map
+    }
+    private fun parseBaiJiaHao(url: String, map: MutableMap<String, String?>) {
+        val driver: WebDriver = ChromeDriver(chromeOptions)
+        try {
+            driver.get(url)// 目标地址
+            val contentElem: WebElement = WebDriverWait(driver, Duration.ofSeconds(timeOut))
+                .until { driver.findElement(By.cssSelector("div.mainContent")) }
+
+            map[Spider.LINK] = driver.currentUrl
+            map[Spider.TITLE] = driver.title
+            map[Spider.USER] = driver.findElement(By.cssSelector("a.authorName")).text?:"百家号"
+
+            //map[Spider.BRIEF] = driver.findElement(By.cssSelector("meta[name=description]"))?.getAttribute("content")
+
+            val content = contentElem.getAttribute("innerHTML")
+            map[Spider.CONTENT] = content
+            if(content!= null)
+                map[Spider.IMGURL] = HtmlImgUtil.getImageSrc(content)?.firstOrNull()
+
+            map[Spider.MSG] = "恭喜，解析成功"
+            map[Spider.RET] = Spider.OK
+        } catch(e: NoSuchElementException){
+            log.error("NoSuchElementException: ${e.message},driver.currentUrl=${driver.currentUrl}")
+        }catch(e: TimeoutException){
+            log.error("TimeoutException: ${e.message},driver.currentUrl=${driver.currentUrl}")
+        }catch (e: IOException) {
+            log.error("IOException: ${e.message},url=$url")
+            map[Spider.MSG] = "获取内容时IO错误，请稍后再试"
+            map[Spider.RET] = Spider.KO
+        }catch (e: Exception){
+            e.printStackTrace()
+            log.error("Exception: ${e.message}, url=$url")
+            map[Spider.MSG] = "获取内容时出现错误，请稍后再试"
+            map[Spider.RET] = Spider.KO
+        }finally {
+            driver.close()
         }
 
-        return map
+    }
+
+    private fun parseBaiDuNews(url: String, map: MutableMap<String, String?>) {
+        val driver: WebDriver = ChromeDriver(chromeOptions)
+        try {
+            driver.get(url)// 目标地址
+            val contentElem: WebElement = WebDriverWait(driver, Duration.ofSeconds(timeOut))
+                .until { driver.findElement(By.cssSelector("div#newsDetailContent")) }
+
+            map[Spider.LINK] = driver.currentUrl
+            map[Spider.TITLE] = driver.title
+            map[Spider.USER] = driver.findElement(By.cssSelector("div.header-info>span")).text?:"百度新闻"
+
+            //map[Spider.BRIEF] = driver.findElement(By.cssSelector("meta[name=description]"))?.getAttribute("content")
+
+            val content = contentElem.getAttribute("innerHTML")
+            map[Spider.CONTENT] = content
+            if(content!= null)
+                map[Spider.IMGURL] = HtmlImgUtil.getImageSrc(content)?.firstOrNull()
+
+            map[Spider.MSG] = "恭喜，解析成功"
+            map[Spider.RET] = Spider.OK
+        } catch (e: IOException) {
+            log.error("IOException: ${e.message},url=$url")
+            map[Spider.MSG] = "获取内容时IO错误，请稍后再试"
+            map[Spider.RET] = Spider.KO
+        }catch (e: Exception){
+            e.printStackTrace()
+            log.error("Exception: ${e.message}, url=$url")
+            map[Spider.MSG] = "获取内容时出现错误，请稍后再试"
+            map[Spider.RET] = Spider.KO
+        }finally {
+            driver.close()
+        }
     }
 }
 
 fun main(args: Array<String>) {
-    BaiduSpider().doParse("http://baijiahao.baidu.com/s?id=1692558786334703012")
+    BaiduSpider("/Users/bill/git/youke/server/app/zhiKe/chromedriver")
+        .doParse("https://mbd.baidu.com/newspage/data/landingshare?p_from=7&n_type=-1&context=%7B%22nid%22%3A%22news_9367297194102527383%22%7D")
         .forEach {
             println("${it.key}=${it.value}")
         }

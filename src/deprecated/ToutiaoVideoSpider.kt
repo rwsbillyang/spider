@@ -1,7 +1,7 @@
 /*
- * Copyright © 2021 rwsbillyang@qq.com
+ * Copyright © 2022 rwsbillyang@qq.com
  *
- * Written by rwsbillyang@qq.com at Beijing Time: 2021-02-27 16:20
+ * Written by rwsbillyang@qq.com at Beijing Time: 2022-09-17 10:22
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.github.rwsbillyang.spider.video
+package com.github.rwsbillyang.spider.deprecated
 
 import com.github.rwsbillyang.spider.SeleniumSpider
 import com.github.rwsbillyang.spider.Spider
@@ -30,6 +30,9 @@ import org.slf4j.LoggerFactory
 import java.io.IOException
 import java.time.Duration
 
+/**
+ * @Deprecate("ToutiaoSpider也支持视频")
+ * */
 //https://m.toutiaoimg.cn/i6912100384953598475/
 class ToutiaoVideoSpider(binary: String? = null) : SeleniumSpider(binary)  {
     private val log: Logger = LoggerFactory.getLogger("ToutiaoVideoSpider")
@@ -83,10 +86,8 @@ class ToutiaoVideoSpider(binary: String? = null) : SeleniumSpider(binary)  {
     }
 }
 
-//头条视频：pc上跳转到西瓜视频，微信里不跳转 https://m.toutiaoimg.cn/i6911200660990263821/
-//https://m.toutiaoimg.cn/a6904293095572144644/?app=news_article_lite&is_hit_share_recommend=0&share_token=8393acac-4faa-44b8-8fb4-9d130b6f2fc5
 fun main(args: Array<String>) {
-    ToutiaoVideoSpider("/Users/bill/git/youke/server/app/mainApp/chromedriver")
+    ToutiaoVideoSpider("/Users/bill/git/youke/server/app/zhiKe/chromedriver")
         .doParse("https://m.toutiao.com/a6940586444830278179/")
         .forEach {
             println("${it.key}=${it.value}")

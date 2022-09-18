@@ -21,9 +21,7 @@ package com.github.rwsbillyang.spider
 import org.openqa.selenium.chrome.ChromeOptions
 
 abstract class SeleniumSpider(binary: String? = null, uas: Array<String> = Spider.UAs_WX): ISpider {
-    override val regPattern = "[^x00-xff]*\\s*http(s)?://(\\w|-)+\\.kuaishou(app)?\\.com/\\S+\\s*[^x00-xff]*"
-    override val errMsg = "请确认链接是否包含： https://v.kuaishou.com/ 或 https://v.kuaishouapp.com/"
-
+    val timeOut = 20L
     init {
         System.setProperty("webdriver.chrome.driver", binary?:"./chromedriver") // 必须加入
     }

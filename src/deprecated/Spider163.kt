@@ -1,7 +1,7 @@
 /*
- * Copyright © 2021 rwsbillyang@qq.com
+ * Copyright © 2022 rwsbillyang@qq.com
  *
- * Written by rwsbillyang@qq.com at Beijing Time: 2021-02-21 21:13
+ * Written by rwsbillyang@qq.com at Beijing Time: 2022-09-17 14:56
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,36 +16,28 @@
  * limitations under the License.
  */
 
-package com.github.rwsbillyang.spider.news
+package deprecated
 
 import com.github.rwsbillyang.spider.*
+import com.github.rwsbillyang.spider.utils.*
 
-//TODO: 里面的视频有问题
-class Spider163: PageStreamParser(Spider.UAs_PC), ISpider {
+
+/**
+ * @Deprecated("等同于3g.163.com")
+ * TODO: 里面的视频有问题
+ * */
+class Spider163: PageStreamParser(Spider.UAs_WX), ISpider {
     override val regPattern = "http(s)?://(news|www)?\\.?163\\.com/\\S+"
     override val errMsg = "请确认链接是否以开头： https://3g.163.com/"
 
     override val extractRules =
         arrayOf(
-            ExtractRule(
-                Spider.TAG,
-                PrefixMatchRule("<meta name=\"keywords\"","content=\"","\"")
-            ),
-            ExtractRule(Spider.TITLE, PrefixMatchRule("<meta property=\"og:title\"","content=\"","\"")),
-            ExtractRule(
-                Spider.BRIEF,
-                PrefixMatchRule("<meta property=\"og:description\"","content=\"","\"")
-            ),
-            ExtractRule(Spider.LINK, PrefixMatchRule("<link rel=\"canonical\"","href=\"","\"")),
+            ExtractRule(Spider.TAG,PrefixMatchRule("<meta name=\"keywords\"","content=\"","\""), StartIndexHint.AfterMatchStrIndex),
+            ExtractRule(Spider.TITLE, PrefixMatchRule("<title",">","<"), StartIndexHint.AfterMatchStrIndex),
+            ExtractRule(Spider.BRIEF,PrefixMatchRule("<meta property=\"og:description\"","content=\"","\""), StartIndexHint.AfterMatchStrIndex),
+            ExtractRule(Spider.USER, PrefixMatchRule("<meta property=\"article:author\"","content=\"","\""),StartIndexHint.AfterMatchStrIndex),
             ExtractRule(Spider.IMGURL, PrefixMatchRule("<meta property=\"og:image\"","content=\"","\"")),
-
-
-            ExtractRule(
-                Spider.CONTENT, MultiLineRule(
-                    EqualRule("<div class=\"post_body\">"),
-                    EqualRule("</div>")
-                )
-            ),
+            ExtractRule(Spider.CONTENT, MultiLineRule(PrefixRule("<article "), EqualRule("</article>"))),
         )
 
 
@@ -59,17 +51,14 @@ class Spider163: PageStreamParser(Spider.UAs_PC), ISpider {
             map[Spider.LINK] = url.split("?").firstOrNull()
         if(map[Spider.IMGURL].isNullOrBlank())
             map[Spider.IMGURL] = HtmlImgUtil.getImageSrc(map[Spider.CONTENT])?.firstOrNull()
-        map[Spider.USER] = "网易"
 
         return map
-
     }
 }
 
 fun main(args: Array<String>) {
     //https://www.163.com/dy/article/G3M3MP6G0534P59R.html?clickfrom=w_yw
-    //https://news.163.com/21/0225/11/G3M7QPGP0001899O.html?clickfrom=w_yw
-    Spider163().doParse("https://news.163.com/21/0225/11/G3M7QPGP0001899O.html?clickfrom=w_yw")
+    Spider163().doParse("https://www.163.com/dy/article/G3M3MP6G0534P59R.html?clickfrom=w_yw")
         .forEach {
             println("${it.key}=${it.value}")
         }

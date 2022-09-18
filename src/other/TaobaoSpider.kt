@@ -56,7 +56,8 @@ class TaobaoSpider(private val username: String, private val password: String, b
     private val mobileLoginUrl = "https://login.m.taobao.com/login.htm"
 
     var isLogin = false
-
+    override val regPattern: String = "http(s)?://(m|www)\\.taobao\\.com/\\S+"
+    override val errMsg: String = "非淘宝网址"
 
     override fun doParse(url: String): Map<String, String?> {
         val driver: WebDriver = ChromeDriver(chromeOptions)
@@ -204,7 +205,7 @@ class TaobaoSpider(private val username: String, private val password: String, b
 //https://s.taobao.com/search?q=%E7%A1%92%E7%89%87
 //https://s.taobao.com/search?q=%E7%A1%92%E7%89%87&sort=sale-desc
 fun main(args: Array<String>) {
-    TaobaoSpider("your_taobao_username", "your_taobao_pwd",  "/Users/bill/git/youke/server/app/mainApp/chromedriver")
+    TaobaoSpider("your_taobao_username", "your_taobao_pwd",  "/Users/bill/git/youke/server/app/zhiKe/chromedriver")
         .doParse("https://s.taobao.com/search?q=%E7%A1%92%E7%89%87&sort=sale-desc")
         .forEach {
             println("${it.key}=${it.value}")
