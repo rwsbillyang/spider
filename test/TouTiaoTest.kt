@@ -68,6 +68,11 @@ class TouTiaoTest: SpiderTestBase() {
         videoTest("https://m.toutiaoimg.cn/a6904293095572144644/?app=news_article_lite&is_hit_share_recommend=0&share_token=8393acac-4faa-44b8-8fb4-9d130b6f2fc5")
     }
 
+    @Test
+    fun test17(){
+        videoTest("https://www.toutiao.com/video/7144673630465884712/?wxshare_count=1&tt_from=weixin&utm_source=weixin&utm_medium=toutiao_android&utm_campaign=client_share&share_token=a298388e-f898-47c6-a35f-d4cac91f5f15&source=m_redirect&wid=1663507036625")
+    }
+
 
      @Test
     fun test21(){

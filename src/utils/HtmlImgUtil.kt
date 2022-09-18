@@ -69,8 +69,8 @@ object HtmlImgUtil {
             Pattern.CASE_INSENSITIVE
         )
         val m: Matcher = p.matcher(htmlCode)
-        var quote: String? = null
-        var src: String? = null
+        var quote: String?
+        var src: String?
         while (m.find()) {
             quote = m.group(1)
 

@@ -34,8 +34,8 @@ import java.time.Duration
 
 
 class ToutiaoSpider(binary: String? = null) : SeleniumSpider(binary)  {
-    private val log: Logger = LoggerFactory.getLogger("ToutiaoVideoSpider")
-    override val regPattern = "http(s)?://(m|www)\\.(toutiao|toutiaocdn|toutiaoimg)\\.(com|cn)/(a|i|article)\\S+"
+    private val log: Logger = LoggerFactory.getLogger("ToutiaoSpider")
+    override val regPattern = "http(s)?://(m|www)\\.(toutiao|toutiaocdn|toutiaoimg)\\.(com|cn)/\\S+"
     override val errMsg = "可能不是头条链接"
 
 
@@ -69,7 +69,7 @@ class ToutiaoSpider(binary: String? = null) : SeleniumSpider(binary)  {
                     .until { driver.findElement(By.tagName("video")) }
 
                 map[Spider.TITLE] = driver.findElement(By.cssSelector("h1.video-title"))?.text
-                map[Spider.VIDEO] = video.findElements(By.tagName("source"))?.firstOrNull()?.getAttribute("src")?.split("?")?.first()
+                map[Spider.VIDEO] = video.findElements(By.tagName("source"))?.firstOrNull()?.getAttribute("src")
                 map[Spider.VIDEO_COVER] = driver.findElements(By.tagName("xg-poster"))?.firstOrNull()?.getAttribute("style")?.substringAfter("url(\"")?.removeSuffix("\");")
 
                 map[Spider.USER] = driver.findElement(By.cssSelector("div.author-info-name"))?.text?:"头条"
@@ -117,9 +117,9 @@ class ToutiaoSpider(binary: String? = null) : SeleniumSpider(binary)  {
     }
 }
 
-fun main(args: Array<String>) {
+fun main() {
     ToutiaoSpider("/Users/bill/git/youke/server/app/zhiKe/chromedriver")
-        .doParse("https://www.toutiao.com/a6932388257619657228/")
+        .doParse("https://m.toutiao.com/video/7143410767243510285/?app=news_article&timestamp=1663492999&group_id=7143410767243510285&share_token=8395a8cd-0d99-4afb-915c-d1a8cbcf7fd1&tt_from=copy_link&utm_source=copy_link&utm_medium=toutiao_android&utm_campaign=client_share")
         .forEach {
             println("${it.key}=${it.value}")
         }

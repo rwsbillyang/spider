@@ -221,7 +221,7 @@ class HtmlParser(private val loopMode:LoopMode = LoopMode.ByLine) {
                         if (excludeEnd != null && isMatch(currentLine, excludeEnd)) {
                             inMultilineExclusiveMode = false
                             val line = currentLine.substringAfter(excludeEnd.matchStr).trim() //删除特征符以前的，保留以后的
-                            if (!currentLine.isNullOrBlank()) sb.append(line)
+                            if (!line.isNullOrBlank()) sb.append(line)
                             continue
                         } else continue
                     } else {
@@ -235,7 +235,7 @@ class HtmlParser(private val loopMode:LoopMode = LoopMode.ByLine) {
                             if (excludeBegin != null && isMatch(currentLine, excludeBegin)) {
                                 inMultilineExclusiveMode = true
                                 val line = currentLine.substringBefore(excludeBegin.matchStr).trim()
-                                if (!currentLine.isNullOrBlank()) sb.append(currentLine)
+                                if (!line.isNullOrBlank()) sb.append(line)
                                 continue
                             } else {
                                 sb.append(currentLine)
