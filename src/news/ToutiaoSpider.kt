@@ -90,6 +90,27 @@ class ToutiaoSpider(binary: String? = null) : SeleniumSpider(binary)  {
 
                 map[Spider.MSG] = "恭喜，解析成功"
                 map[Spider.RET] = Spider.OK
+            }else if(newUrl.contains("/w/")){ //weitoutiao-content
+                val article: WebElement = WebDriverWait(driver, Duration.ofSeconds(timeOut))
+                    .until { driver.findElement(By.cssSelector("div.weitoutiao-content")) }
+                var content = article.getAttribute("innerHTML")
+
+                val imgs = driver.findElement(By.cssSelector("div.image-list"))
+                    .findElements(By.tagName("div")).firstOrNull()?.getAttribute("outerHTML")?:"" //?.getAttribute("innerHTML")
+
+                content += imgs
+                //if(content!= null)
+                //    map[Spider.IMGURL] = HtmlImgUtil.getImageSrc(content)?.firstOrNull()
+
+                map[Spider.CONTENT] = content
+
+                map[Spider.TITLE] = driver.title.removeSuffix("-今日头条")
+                map[Spider.BRIEF] = driver.findElement(By.cssSelector("meta[name=description]"))?.getAttribute("content")
+
+                map[Spider.USER] = driver.findElement(By.cssSelector("div.author-info>div.author-info-name")).text?:"头条"
+
+                map[Spider.MSG] = "恭喜，解析成功"
+                map[Spider.RET] = Spider.OK
             }else{
                 log.warn("not support toutiao url=$url")
                 map[Spider.MSG] = "暂不支持此类型链接"
@@ -118,8 +139,10 @@ class ToutiaoSpider(binary: String? = null) : SeleniumSpider(binary)  {
 }
 
 fun main() {
+    //由于IDEA中使用的server/build.gradle配置，kbson等需要jdk11,故需将spider/gradle.properties中jdk版本改为11
+    //而在命令行下进行spider的库编译时，需要改成1.8版本，以生成支持jdk1.8及以上版本的库，否则将生成生成只支持11+的spider库
     ToutiaoSpider("/Users/bill/git/youke/server/app/zhiKe/chromedriver")
-        .doParse("https://m.toutiao.com/video/7143410767243510285/?app=news_article&timestamp=1663492999&group_id=7143410767243510285&share_token=8395a8cd-0d99-4afb-915c-d1a8cbcf7fd1&tt_from=copy_link&utm_source=copy_link&utm_medium=toutiao_android&utm_campaign=client_share")
+        .doParse("https://m.toutiao.com/w/1744012349973518?app=news_article&timestamp=1663669973&use_new_style=1&share_token=942703b5-294f-40ba-848a-e357a87ee8a7&tt_from=copy_link&utm_source=copy_link&utm_medium=toutiao_android&utm_campaign=client_share&source=m_redirect&upstream_biz=toutiao_pc&from_gid=1744001366265856&from_page_type=weitoutiao")
         .forEach {
             println("${it.key}=${it.value}")
         }

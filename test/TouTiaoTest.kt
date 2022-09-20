@@ -79,4 +79,14 @@ class TouTiaoTest: SpiderTestBase() {
          //https://m.zjurl.cn/question/6720386012503113991/?app=news_article&app_id=13&share_ansid=6937296144544825638&share_token=9c2815fc-ebc7-42e2-b2ce-41d35841aa4f&tt_from=copy_link&utm_source=copy_link&utm_medium=toutiao_android&utm_campaign=client_share
         newsTest("https://m.toutiao.com/is/eLAFjSc/")
     }
+
+
+    @Test
+    fun test31(){
+       newsTest("https://www.toutiao.com/w/1744123870313500/?app=news_article&timestamp=1663669973&use_new_style=1&share_token=942703b5-294f-40ba-848a-e357a87ee8a7&tt_from=copy_link&utm_source=copy_link&utm_medium=toutiao_android&utm_campaign=client_share&source=m_redirect&upstream_biz=toutiao_pc&source=m_redirect")
+    }
+    @Test
+    fun test32(){
+        newsTest("https://m.toutiao.com/w/1744012349973518?app=news_article&timestamp=1663669973&use_new_style=1&share_token=942703b5-294f-40ba-848a-e357a87ee8a7&tt_from=copy_link&utm_source=copy_link&utm_medium=toutiao_android&utm_campaign=client_share&source=m_redirect&upstream_biz=toutiao_pc&from_gid=1744001366265856&from_page_type=weitoutiao")
+    }
 }
