@@ -22,7 +22,7 @@ import com.github.rwsbillyang.spider.ISpider
 import com.github.rwsbillyang.spider.news.BaiduSpider
 
 import org.junit.Test
-
+// skip test: ./gradlew build -x test
 class BaiDuTest: SpiderTestBase()  {
     override val spider: ISpider = BaiduSpider(driverPath)
 

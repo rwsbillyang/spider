@@ -34,6 +34,11 @@ class TouTiaoTest: SpiderTestBase() {
     fun test5(){
         newsTest("https://m.toutiaocdn.com/i6930596509947871747/?app=news_article_lite&timestamp=1614248713&use_new_style=1&req_id=202102251825130101351551474403EE48&group_id=6930596509947871747&share_token=c7d8f7b1-122d-43b9-a777-e335a8288176")
     }
+    @Test
+    fun test6(){
+        //带有小视频的article
+        newsTest("https://m.toutiao.com/article/7133606462558896647/?app=news_article&timestamp=1663602881&use_new_style=1&req_id=20220919235440010209157026040F8ADF&group_id=7133606462558896647&share_token=187941c2-9f53-4ba6-879c-a5c3875c6003&tt_from=copy_link&utm_source=copy_link&utm_medium=toutiao_android&utm_campaign=client_share&source=m_redirect&upstream_biz=toutiao_pc")
+    }
 
     @Test
     fun test11(){

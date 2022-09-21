@@ -52,7 +52,21 @@ class ToutiaoSpider(binary: String? = null) : SeleniumSpider(binary)  {
             if(newUrl.contains("/article/")){
                 val article: WebElement = WebDriverWait(driver, Duration.ofSeconds(timeOut))
                     .until { driver.findElement(By.tagName("article")) }
-                val content = article.getAttribute("innerHTML")
+                var content = article.getAttribute("innerHTML")
+
+                //某些链接中会包含视频，需点击后才能出现video标签，https://m.toutiao.com/article/7133606462558896647/?app=news_article&timestamp=1663602881&use_new_style=1&req_id=20220919235440010209157026040F8ADF&group_id=7133606462558896647&share_token=187941c2-9f53-4ba6-879c-a5c3875c6003&tt_from=copy_link&utm_source=copy_link&utm_medium=toutiao_android&utm_campaign=client_share&source=m_redirect&upstream_biz=toutiao_pc
+                driver.findElements(By.cssSelector("div.tt-video-box"))?.forEach {
+                    val c = it.getAttribute("outerHTML")
+                    it.click() //点击后才出现video信息
+                    val video: WebElement = WebDriverWait(driver, Duration.ofSeconds(timeOut))
+                        .until { driver.findElement(By.cssSelector("video")) }
+
+                    val src = video.getAttribute("src")
+                    val v = "<p><video src=\"$src\" controls loop autoPlay=\"false\" preload=\"metadata\" width=\"100%\"  playsInline webkit-playsinline x5-playsinline x6-playsinline x5-video-player-fullscreen=\"false\"  x5-video-player-type=\"h5\" x-webkit-airplay=\"allow\"></p>"
+                    //log.info("c=$c, v=$v")
+                    content = content.replace(c, v)
+                }
+
                 map[Spider.CONTENT] = content
                 if(content!= null)
                     map[Spider.IMGURL] = HtmlImgUtil.getImageSrc(content)?.firstOrNull()
@@ -99,7 +113,7 @@ class ToutiaoSpider(binary: String? = null) : SeleniumSpider(binary)  {
                     .findElements(By.tagName("div")).firstOrNull()?.getAttribute("outerHTML")?:"" //?.getAttribute("innerHTML")
 
                 content += imgs
-                //if(content!= null)
+                //if(content!= null) //留给前端通过解析dom获取
                 //    map[Spider.IMGURL] = HtmlImgUtil.getImageSrc(content)?.firstOrNull()
 
                 map[Spider.CONTENT] = content
@@ -142,7 +156,7 @@ fun main() {
     //由于IDEA中使用的server/build.gradle配置，kbson等需要jdk11,故需将spider/gradle.properties中jdk版本改为11
     //而在命令行下进行spider的库编译时，需要改成1.8版本，以生成支持jdk1.8及以上版本的库，否则将生成生成只支持11+的spider库
     ToutiaoSpider("/Users/bill/git/youke/server/app/zhiKe/chromedriver")
-        .doParse("https://m.toutiao.com/w/1744012349973518?app=news_article&timestamp=1663669973&use_new_style=1&share_token=942703b5-294f-40ba-848a-e357a87ee8a7&tt_from=copy_link&utm_source=copy_link&utm_medium=toutiao_android&utm_campaign=client_share&source=m_redirect&upstream_biz=toutiao_pc&from_gid=1744001366265856&from_page_type=weitoutiao")
+        .doParse("https://m.toutiao.com/article/7133606462558896647/?app=news_article&timestamp=1663602881&use_new_style=1&req_id=20220919235440010209157026040F8ADF&group_id=7133606462558896647&share_token=187941c2-9f53-4ba6-879c-a5c3875c6003&tt_from=copy_link&utm_source=copy_link&utm_medium=toutiao_android&utm_campaign=client_share&source=m_redirect&upstream_biz=toutiao_pc")
         .forEach {
             println("${it.key}=${it.value}")
         }
