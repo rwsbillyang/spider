@@ -156,7 +156,7 @@ class DouYinSpider: ISpider{
 //https://v.douyin.com/LcK3g27/   9.48 MJI:/ 调小音量‼️女生偷偷在用的小登西居然是……  https://v.douyin.com/LcK3g27/ 复制此链接，打开Dou音搜索，直接观看视频
 //https://www.iesdouyin.com/share/video/6933174036600081671/
 //三里屯街拍，祝愿大家高考顺利 https://v.douyin.com/JNDRc6L/ 复制此链接，打开【抖音短视频】，直接观看视频！
-fun main(args: Array<String>) {
+fun main() {
     DouYinSpider()
         .doParse("https://v.douyin.com/JNDRc6L/")
         .forEach {

@@ -18,24 +18,23 @@
 
 package com.github.rwsbillyang.spider.other
 
-import com.github.rwsbillyang.spider.SeleniumSpider
+import com.github.rwsbillyang.spider.ISpider
 import com.github.rwsbillyang.spider.Spider
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.jsoup.Jsoup
 import org.openqa.selenium.By
+import org.openqa.selenium.TimeoutException
 import org.openqa.selenium.WebDriver
 import org.openqa.selenium.WebElement
-import org.openqa.selenium.chrome.ChromeDriver
 import org.openqa.selenium.interactions.Actions
-
 import org.openqa.selenium.support.ui.WebDriverWait
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.io.IOException
+import java.net.MalformedURLException
 import java.time.Duration
-import java.util.concurrent.TimeUnit
 
 @Serializable
 class TaobaoProduct(
@@ -50,7 +49,8 @@ class TaobaoProduct(
 )
 
 
-class TaobaoSpider(private val username: String, private val password: String, binary: String? = null,uas: Array<String> = Spider.UAs_PC) : SeleniumSpider(binary, uas)  {
+class TaobaoSpider(private val username: String, private val password: String,private val webDriver: WebDriver):
+    ISpider {
     private val log: Logger = LoggerFactory.getLogger("TaobaoSpider")
 
     private val mobileLoginUrl = "https://login.m.taobao.com/login.htm"
@@ -60,10 +60,10 @@ class TaobaoSpider(private val username: String, private val password: String, b
     override val errMsg: String = "非淘宝网址"
 
     override fun doParse(url: String): Map<String, String?> {
-        val driver: WebDriver = ChromeDriver(chromeOptions)
+       // val driver: WebDriver = ChromeDriver(chromeOptions)
 
         if(!isLogin){
-            userMobileLogin(driver)
+            userMobileLogin(webDriver)
         }
 
         Thread.sleep(2000)
@@ -73,14 +73,14 @@ class TaobaoSpider(private val username: String, private val password: String, b
 
         try {
             log.info("parse url=$url")
-            driver.get(url)// 目标地址
-            val body: WebElement =  WebDriverWait(driver, Duration.ofSeconds(15))
-                .until { d -> driver.findElement(By.tagName("body")) }
+            webDriver.get(url)// 目标地址
+            val body: WebElement =  WebDriverWait(webDriver, Duration.ofSeconds(15))
+                .until { webDriver.findElement(By.tagName("body")) }
             log.info(body.text)
 
             //注意：class必须严格字符串匹配，包括空格
-            val itemList = WebDriverWait(driver, Duration.ofSeconds(15))
-                .until { d -> driver.findElements(By.xpath("//div[@class='item J_MouserOnverReq  ']")) }
+            val itemList = WebDriverWait(webDriver, Duration.ofSeconds(15))
+                .until { d -> webDriver.findElements(By.xpath("//div[@class='item J_MouserOnverReq  ']")) }
 
             var number = 1
             val list = itemList.map {
@@ -94,7 +94,13 @@ class TaobaoSpider(private val username: String, private val password: String, b
             map[Spider.CONTENT] = listStr
             map[Spider.MSG] = "恭喜，解析成功"
             map[Spider.RET] = Spider.OK
-        } catch (e: IOException) {
+        }catch(e: NoSuchElementException){
+            log.error("NoSuchElementException: ${e.message},driver.currentUrl=${webDriver.currentUrl}")
+        }catch(e: TimeoutException){
+            log.error("TimeoutException: ${e.message},driver.currentUrl=${webDriver.currentUrl}")
+        }catch (e: MalformedURLException){
+            log.error("MalformedURLException: ${e.message},url=$url")
+        }catch (e: IOException) {
             log.error("IOException: ${e.message},url=$url")
             map[Spider.MSG] = "获取内容时IO错误，请稍后再试"
             map[Spider.RET] = Spider.KO
@@ -103,9 +109,8 @@ class TaobaoSpider(private val username: String, private val password: String, b
             log.error("Exception: ${e.message}, url=$url")
             map[Spider.MSG] = "获取内容时出现错误，请稍后再试"
             map[Spider.RET] = Spider.KO
-        }
-        finally {
-            driver.close()
+        }finally {
+            webDriver.close()
         }
 
 
@@ -201,14 +206,4 @@ class TaobaoSpider(private val username: String, private val password: String, b
     }
 }
 
-//https://s.m.taobao.com/h5?&_input_charset=utf-8&q=%E7%A1%92%E7%89%87
-//https://s.taobao.com/search?q=%E7%A1%92%E7%89%87
-//https://s.taobao.com/search?q=%E7%A1%92%E7%89%87&sort=sale-desc
-fun main(args: Array<String>) {
-    TaobaoSpider("your_taobao_username", "your_taobao_pwd",  "/Users/bill/git/youke/server/app/zhiKe/chromedriver")
-        .doParse("https://s.taobao.com/search?q=%E7%A1%92%E7%89%87&sort=sale-desc")
-        .forEach {
-            println("${it.key}=${it.value}")
-        }
-}
 

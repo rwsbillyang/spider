@@ -18,12 +18,9 @@
 
 package com.github.rwsbillyang.spider.test
 
-import com.github.rwsbillyang.spider.ISpider
-import com.github.rwsbillyang.spider.news.Spider3G163
 import org.junit.Test
 
- class Spider3G163Test: SpiderTestBase()  {
-    override val spider: ISpider = Spider3G163()
+class Spider3G163Test: SpiderTestBase()  {
 
     @Test
     fun test1(){

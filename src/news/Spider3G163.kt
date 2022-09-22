@@ -82,12 +82,3 @@ class Spider3G163: PageStreamParser(Spider.UAs_WX), ISpider {
 
     }
 }
-
-fun main(args: Array<String>) {
-    //https://3g.163.com/all/article/DB8SPSIU0001875P.html
-    //https://3g.163.com/news/article/G3RFDHQF000189FH.html
-    Spider3G163().doParse("https://3g.163.com/news/article/G3K55190000189FH.html?clickfrom=index2018_news_newslist#offset=0")
-        .forEach {
-            println("${it.key}=${it.value}")
-        }
-}

@@ -31,7 +31,7 @@ import java.net.URLConnection
  * 对请求获取的网页字符串流进行处理，逐行检查获取所需的值
  * */
 abstract class PageStreamParser(private val uas: Array<String>, private val loopMode: LoopMode = LoopMode.ByLine) {
-    val log: Logger = LoggerFactory.getLogger("HtmlParser")
+    val log: Logger = LoggerFactory.getLogger("PageStreamParser")
 
     abstract val extractRules: Array<ExtractRule>
 

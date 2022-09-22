@@ -18,6 +18,7 @@
 
 package com.github.rwsbillyang.spider
 
+
 import com.github.rwsbillyang.spider.news.*
 import com.github.rwsbillyang.spider.video.DouYinSpider
 import com.github.rwsbillyang.spider.video.KuaiShouSpider
@@ -80,12 +81,24 @@ object Spider {
     const val VIDEO = "video"
     const val MUSIC = "music"
 
+    var driverPath_ = "./chromedriver"
+    var uas_: Array<String>  = Spider.UAs_WX
+
+    /**
+     * @param driverPath chromeDriver可执行文件的位置， 第一个使用spider的调用生效，后面的不生效
+     * @param uas userAgent集合，随机取一个， 第一个使用spider的调用生效，后面的不生效
+     * */
+    fun init(driverPath: String = "./chromedriver", uas: Array<String> = Spider.UAs_WX){
+        driverPath_ = driverPath
+        uas_ = uas
+    }
+
     fun parse(url: String): Map<String, String?> {
-        val spider = factory(url)
+        val spider = create(url)
         if (spider == null) {
             val map = mutableMapOf<String, String?>()
             map[Spider.RET] = Spider.KO
-            map[Spider.MSG] = "暂只支持微信公众号文章，实验性支持：今日头条、抖音短视频、快手短视频，请换个链接试试吧" //快手短视频、今日头条、
+            map[Spider.MSG] = "暂只支持微信公众号文章，实验性支持：今日头条、抖音短视频、快手短视频、百度和163，请换个链接试试吧" //快手短视频、今日头条、
             return map
         }
         val isInvalid: Boolean = Pattern.matches(spider.regPattern, url)
@@ -98,33 +111,20 @@ object Spider {
         return spider.doParse(url)
     }
 
-    private val wechatArticleSpider = WechatArticleSpider()
-    private var kuaiShouSpider: KuaiShouSpider? = null
-    private var toutiaoNewsSpider: ToutiaoSpider? = null
-
-    private var baiduSpider: BaiduSpider? = null
-
-    private var douyinSpider: DouYinSpider? = null
-
-
-    private fun factory(url: String): ISpider? {
+    private fun create(url: String): ISpider? {
         return if (url.contains("mp.weixin.qq.com")) {
-            wechatArticleSpider
+            WechatArticleSpider()
         }
         else if(url.contains(".toutiao")){
-            if (toutiaoNewsSpider == null) toutiaoNewsSpider = ToutiaoSpider()
-            toutiaoNewsSpider
+            ToutiaoSpider(ChromeDriverServiceWrapper.webDriver(driverPath_, uas_))
         }
         else if (url.contains(".kuaishou")) {
-            if (kuaiShouSpider == null) kuaiShouSpider = KuaiShouSpider()
-            kuaiShouSpider
+            KuaiShouSpider(ChromeDriverServiceWrapper.webDriver(driverPath_, uas_))
         }else if(url.contains("douyin.com")){
-            if (douyinSpider == null) douyinSpider = DouYinSpider()
-            douyinSpider
+            DouYinSpider()
         }
         else if (url.contains("baidu.com")) {
-            if (baiduSpider == null) baiduSpider = BaiduSpider()
-            baiduSpider
+            BaiduSpider(ChromeDriverServiceWrapper.webDriver(driverPath_, uas_))
         }
         else if (url.contains("163.com")) {
             if(url.contains("//3g.163.com")) Spider3G163()
@@ -135,8 +135,6 @@ object Spider {
             null
         }
     }
-
-
     /**
      * 检测url是否有效 有效返回true，失效返回false
      * */
@@ -149,41 +147,12 @@ object Spider {
             conn.requestMethod = "HEAD"
             conn.responseCode == HttpURLConnection.HTTP_OK
         } catch (e: MalformedURLException) {
-            e.printStackTrace()
+            //e.printStackTrace()
+            println("MalformedURLException: url=$urlStr")
             false
         } catch (e: IOException) {
+            println("IOException: url=$urlStr")
             false
         }
     }
-}
-
-fun main(args: Array<String>) {
-
-    println(Spider.verifyUrl("http://v3-default.ixigua.com/401a132eecec653be1cb0061eef14af6/603a26d8/video/tos/cn/tos-cn-ve-4/38caad6af0f649b680c5d6ea37146e06/"))
-    println(Spider.verifyUrl("http://v6-default.ixigua.com/f336900ffba785ef2092136c6e911741/603a51a5/video/tos/cn/tos-cn-ve-4/38caad6af0f649b680c5d6ea37146e06/"))
-
-    //https://mp.weixin.qq.com/s/fBFQg0dDDBctl1fT3RlW0g  https://mp.weixin.qq.com/s/dgjpOWWz9P87I17OmFCGHQ
-//    Spider.parse("https://mp.weixin.qq.com/s/9ESoDV7-Fo6_mHvYC69W9w").forEach {
-//        println("${it.key}=${it.value}")
-//    }
-
-//    Spider.parse("https://3g.163.com/news/article/G3K55190000189FH.html?clickfrom=index2018_news_newslist#offset=0")
-//        .forEach {
-//            println("${it.key}=${it.value}")
-//        }
-//
-//    Spider.parse("https://m.toutiao.com/i6525188057665110531/")
-//        .forEach {
-//            println("${it.key}=${it.value}")
-//        }
-//
-//    Spider.parse(" #汪星人 #宠物避障挑战 https://v.kuaishou.com/5xXNiL 复制此链接，打开【快手App】直接观看！")
-//        .forEach {
-//            println("${it.key}=${it.value}")
-//        }
-//
-//    Spider.parse("三里屯街拍，祝愿大家高考顺利 https://v.douyin.com/JNDRc6L/ 复制此链接，打开【抖音短视频】，直接观看视频！")
-//        .forEach {
-//            println("${it.key}=${it.value}")
-//        }
 }

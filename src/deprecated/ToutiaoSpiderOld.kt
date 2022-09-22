@@ -91,7 +91,8 @@ class ToutiaoSpiderOld : ISpider {
                     } else {
                         //来自今日头条的视频
                         if(content.contains("tt-videoid=")){
-                            return ToutiaoVideoSpider().doParse(newUrl)
+                            //return ToutiaoVideoSpider().doParse(newUrl)
+                            log.info("please use ToutiaoVideoSpider")
                         }else{
                             //正常的头条内容
                             map[Spider.CONTENT] = content

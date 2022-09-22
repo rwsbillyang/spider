@@ -59,11 +59,3 @@ class WechatArticleSpider: PageStreamParser(Spider.UAs_WX), ISpider {
         return map
     }
 }
-
-fun main(args: Array<String>) {
-    WechatArticleSpider()
-        .doParse("https://mp.weixin.qq.com/s/bDO07cqSymKIh0alRFhPhQ")
-        .forEach {
-            println("${it.key}=${it.value}")
-        }
-}

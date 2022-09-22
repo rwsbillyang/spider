@@ -83,14 +83,5 @@ class SpiderCM163: ISpider {
             }
 
         return map
-
     }
-}
-
-fun main(args: Array<String>) {
-    //https://c.m.163.com/news/a/G3IIMQ340539QLK6.html?spss=newsapp
-    SpiderCM163().doParse("https://c.m.163.com/news/a/HGOG88IB0553A9YH.html")
-        .forEach {
-            println("${it.key}=${it.value}")
-        }
 }

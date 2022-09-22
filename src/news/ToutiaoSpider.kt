@@ -18,24 +18,25 @@
 
 package com.github.rwsbillyang.spider.news
 
-import com.github.rwsbillyang.spider.SeleniumSpider
+import com.github.rwsbillyang.spider.ChromeDriverServiceWrapper
+import com.github.rwsbillyang.spider.ISpider
 import com.github.rwsbillyang.spider.Spider
 import com.github.rwsbillyang.spider.utils.HtmlImgUtil
 import org.openqa.selenium.By
 import org.openqa.selenium.TimeoutException
 import org.openqa.selenium.WebDriver
 import org.openqa.selenium.WebElement
-import org.openqa.selenium.chrome.ChromeDriver
 import org.openqa.selenium.support.ui.WebDriverWait
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.io.IOException
+import java.net.MalformedURLException
 import java.time.Duration
 
 
-class ToutiaoSpider(binary: String? = null) : SeleniumSpider(binary)  {
+class ToutiaoSpider(private val webDriver: WebDriver): ISpider {
     private val log: Logger = LoggerFactory.getLogger("ToutiaoSpider")
-    override val regPattern = "http(s)?://(m|www)\\.(toutiao|toutiaocdn|toutiaoimg)\\.(com|cn)/\\S+"
+    override val regPattern = "http(s)?://(m|www)\\.(toutiao|toutiaocdn|toutiaoimg)\\.(com|cn|net)/\\S+"
     override val errMsg = "可能不是头条链接"
 
 
@@ -44,22 +45,22 @@ class ToutiaoSpider(binary: String? = null) : SeleniumSpider(binary)  {
         val map = mutableMapOf<String, String?>()
         log.info("parse url=$url")
 
-        val driver: WebDriver = ChromeDriver(chromeOptions)
+        //val driver: WebDriver = ChromeDriver(chromeOptions)
         try {
-            driver.get(url)// 目标地址
-            val newUrl = driver.currentUrl
+            webDriver.get(url)// 目标地址
+            val newUrl = webDriver.currentUrl
             map[Spider.LINK] = newUrl
             if(newUrl.contains("/article/")){
-                val article: WebElement = WebDriverWait(driver, Duration.ofSeconds(timeOut))
-                    .until { driver.findElement(By.tagName("article")) }
+                val article: WebElement = WebDriverWait(webDriver, Duration.ofSeconds(ChromeDriverServiceWrapper.timeOut))
+                    .until { webDriver.findElement(By.tagName("article")) }
                 var content = article.getAttribute("innerHTML")
 
                 //某些链接中会包含视频，需点击后才能出现video标签，https://m.toutiao.com/article/7133606462558896647/?app=news_article&timestamp=1663602881&use_new_style=1&req_id=20220919235440010209157026040F8ADF&group_id=7133606462558896647&share_token=187941c2-9f53-4ba6-879c-a5c3875c6003&tt_from=copy_link&utm_source=copy_link&utm_medium=toutiao_android&utm_campaign=client_share&source=m_redirect&upstream_biz=toutiao_pc
-                driver.findElements(By.cssSelector("div.tt-video-box"))?.forEach {
+                webDriver.findElements(By.cssSelector("div.tt-video-box"))?.forEach {
                     val c = it.getAttribute("outerHTML")
                     it.click() //点击后才出现video信息
-                    val video: WebElement = WebDriverWait(driver, Duration.ofSeconds(timeOut))
-                        .until { driver.findElement(By.cssSelector("video")) }
+                    val video: WebElement = WebDriverWait(webDriver, Duration.ofSeconds(ChromeDriverServiceWrapper.timeOut))
+                        .until { webDriver.findElement(By.cssSelector("video")) }
 
                     val src = video.getAttribute("src")
                     val v = "<p><video src=\"$src\" controls loop autoPlay=\"false\" preload=\"metadata\" width=\"100%\"  playsInline webkit-playsinline x5-playsinline x6-playsinline x5-video-player-fullscreen=\"false\"  x5-video-player-type=\"h5\" x-webkit-airplay=\"allow\"></p>"
@@ -71,31 +72,31 @@ class ToutiaoSpider(binary: String? = null) : SeleniumSpider(binary)  {
                 if(content!= null)
                     map[Spider.IMGURL] = HtmlImgUtil.getImageSrc(content)?.firstOrNull()
 
-                map[Spider.TITLE] = driver.findElement(By.cssSelector("h1"))?.text
-                map[Spider.BRIEF] = driver.findElement(By.cssSelector("meta[name=description]"))?.getAttribute("content")
+                map[Spider.TITLE] = webDriver.findElement(By.cssSelector("h1"))?.text
+                map[Spider.BRIEF] = webDriver.findElement(By.cssSelector("meta[name=description]"))?.getAttribute("content")
 
-                map[Spider.USER] = driver.findElement(By.cssSelector("div.author-info>div.author-info-name")).text?:"头条"
+                map[Spider.USER] = webDriver.findElement(By.cssSelector("div.author-info>div.author-info-name")).text?:"头条"
 
                 map[Spider.MSG] = "恭喜，解析成功"
                 map[Spider.RET] = Spider.OK
             }else if(newUrl.contains("/video/")){
-                val video: WebElement = WebDriverWait(driver, Duration.ofSeconds(timeOut))
-                    .until { driver.findElement(By.tagName("video")) }
+                val video: WebElement = WebDriverWait(webDriver, Duration.ofSeconds(ChromeDriverServiceWrapper.timeOut))
+                    .until { webDriver.findElement(By.tagName("video")) }
 
-                map[Spider.TITLE] = driver.findElement(By.cssSelector("h1.video-title"))?.text
+                map[Spider.TITLE] = webDriver.findElement(By.cssSelector("h1.video-title"))?.text
                 map[Spider.VIDEO] = video.findElements(By.tagName("source"))?.firstOrNull()?.getAttribute("src")
-                map[Spider.VIDEO_COVER] = driver.findElements(By.tagName("xg-poster"))?.firstOrNull()?.getAttribute("style")?.substringAfter("url(\"")?.removeSuffix("\");")
+                map[Spider.VIDEO_COVER] = webDriver.findElements(By.tagName("xg-poster"))?.firstOrNull()?.getAttribute("style")?.substringAfter("url(\"")?.removeSuffix("\");")
 
-                map[Spider.USER] = driver.findElement(By.cssSelector("div.author-info-name"))?.text?:"头条"
-                map[Spider.IMGURL] = driver.findElement(By.cssSelector("div.author-avatar>img"))?.getAttribute("src")
+                map[Spider.USER] = webDriver.findElement(By.cssSelector("div.author-info-name"))?.text?:"头条"
+                map[Spider.IMGURL] = webDriver.findElement(By.cssSelector("div.author-avatar>img"))?.getAttribute("src")
 
                 map[Spider.MSG] = "恭喜，解析成功"
                 map[Spider.RET] = Spider.OK
             }else if(newUrl.contains("/question/")){
-                val ul: WebElement = WebDriverWait(driver, Duration.ofSeconds(timeOut))
-                    .until { driver.findElement(By.cssSelector("ul.answerlist")) }
+                val ul: WebElement = WebDriverWait(webDriver, Duration.ofSeconds(ChromeDriverServiceWrapper.timeOut))
+                    .until { webDriver.findElement(By.cssSelector("ul.answerlist")) }
 
-                map[Spider.TITLE] = driver.findElement(By.cssSelector("h1.title"))?.text
+                map[Spider.TITLE] = webDriver.findElement(By.cssSelector("h1.title"))?.text
                 val content = ul.getAttribute("outerHTML")
                 map[Spider.CONTENT] = content
                 map[Spider.USER] ="头条"
@@ -105,11 +106,11 @@ class ToutiaoSpider(binary: String? = null) : SeleniumSpider(binary)  {
                 map[Spider.MSG] = "恭喜，解析成功"
                 map[Spider.RET] = Spider.OK
             }else if(newUrl.contains("/w/")){ //weitoutiao-content
-                val article: WebElement = WebDriverWait(driver, Duration.ofSeconds(timeOut))
-                    .until { driver.findElement(By.cssSelector("div.weitoutiao-content")) }
+                val article: WebElement = WebDriverWait(webDriver, Duration.ofSeconds(ChromeDriverServiceWrapper.timeOut))
+                    .until { webDriver.findElement(By.cssSelector("div.weitoutiao-content")) }
                 var content = article.getAttribute("innerHTML")
 
-                val imgs = driver.findElement(By.cssSelector("div.image-list"))
+                val imgs = webDriver.findElement(By.cssSelector("div.image-list"))
                     .findElements(By.tagName("div")).firstOrNull()?.getAttribute("outerHTML")?:"" //?.getAttribute("innerHTML")
 
                 content += imgs
@@ -118,10 +119,10 @@ class ToutiaoSpider(binary: String? = null) : SeleniumSpider(binary)  {
 
                 map[Spider.CONTENT] = content
 
-                map[Spider.TITLE] = driver.title.removeSuffix("-今日头条")
-                map[Spider.BRIEF] = driver.findElement(By.cssSelector("meta[name=description]"))?.getAttribute("content")
+                map[Spider.TITLE] = webDriver.title.removeSuffix("-今日头条")
+                map[Spider.BRIEF] = webDriver.findElement(By.cssSelector("meta[name=description]"))?.getAttribute("content")
 
-                map[Spider.USER] = driver.findElement(By.cssSelector("div.author-info>div.author-info-name")).text?:"头条"
+                map[Spider.USER] = webDriver.findElement(By.cssSelector("div.author-info>div.author-info-name")).text?:"头条"
 
                 map[Spider.MSG] = "恭喜，解析成功"
                 map[Spider.RET] = Spider.OK
@@ -131,10 +132,12 @@ class ToutiaoSpider(binary: String? = null) : SeleniumSpider(binary)  {
                 map[Spider.RET] = Spider.KO
             }
 
-        } catch(e: NoSuchElementException){
-            log.error("NoSuchElementException: ${e.message},driver.currentUrl=${driver.currentUrl}")
+        }catch(e: NoSuchElementException){
+            log.error("NoSuchElementException: ${e.message},driver.currentUrl=${webDriver.currentUrl}")
         }catch(e: TimeoutException){
-            log.error("TimeoutException: ${e.message},driver.currentUrl=${driver.currentUrl}")
+            log.error("TimeoutException: ${e.message},driver.currentUrl=${webDriver.currentUrl}")
+        }catch (e: MalformedURLException){
+            log.error("MalformedURLException: ${e.message},url=$url")
         }catch (e: IOException) {
             log.error("IOException: ${e.message},url=$url")
             map[Spider.MSG] = "获取内容时IO错误，请稍后再试"
@@ -145,19 +148,9 @@ class ToutiaoSpider(binary: String? = null) : SeleniumSpider(binary)  {
             map[Spider.MSG] = "获取内容时出现错误，请稍后再试"
             map[Spider.RET] = Spider.KO
         }finally {
-            driver.close()
+            webDriver.close()
         }
 
         return map
     }
-}
-
-fun main() {
-    //由于IDEA中使用的server/build.gradle配置，kbson等需要jdk11,故需将spider/gradle.properties中jdk版本改为11
-    //而在命令行下进行spider的库编译时，需要改成1.8版本，以生成支持jdk1.8及以上版本的库，否则将生成生成只支持11+的spider库
-    ToutiaoSpider("/Users/bill/git/youke/server/app/zhiKe/chromedriver")
-        .doParse("https://m.toutiao.com/article/7133606462558896647/?app=news_article&timestamp=1663602881&use_new_style=1&req_id=20220919235440010209157026040F8ADF&group_id=7133606462558896647&share_token=187941c2-9f53-4ba6-879c-a5c3875c6003&tt_from=copy_link&utm_source=copy_link&utm_medium=toutiao_android&utm_campaign=client_share&source=m_redirect&upstream_biz=toutiao_pc")
-        .forEach {
-            println("${it.key}=${it.value}")
-        }
 }

@@ -18,12 +18,10 @@
 
 package com.github.rwsbillyang.spider.test
 
-import com.github.rwsbillyang.spider.ISpider
-import com.github.rwsbillyang.spider.video.KuaiShouSpider
+
 import org.junit.Test
 
 class KuaiShouSpiderTest: SpiderTestBase()  {
-    override val spider: ISpider = KuaiShouSpider(driverPath)
 
     @Test
     fun test1(){
@@ -34,4 +32,6 @@ class KuaiShouSpiderTest: SpiderTestBase()  {
     fun test2(){
         videoTest("https://v.kuaishou.com/uK4xt0")
     }
+
+
 }

@@ -18,12 +18,9 @@
 
 package com.github.rwsbillyang.spider.test
 
-import com.github.rwsbillyang.spider.ISpider
-import com.github.rwsbillyang.spider.news.WechatArticleSpider
 import org.junit.Test
 
 class WechatArticleTest: SpiderTestBase()  {
-    override val spider: ISpider = WechatArticleSpider()
 
     @Test
     fun test1(){

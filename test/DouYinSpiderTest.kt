@@ -18,12 +18,9 @@
 
 package com.github.rwsbillyang.spider.test
 
-import com.github.rwsbillyang.spider.ISpider
-import com.github.rwsbillyang.spider.video.DouYinSpider
 import org.junit.Test
 
 class DouYinSpiderTest: SpiderTestBase()  {
-    override val spider: ISpider = DouYinSpider()
 
     @Test
     fun test1(){

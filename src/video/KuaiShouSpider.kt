@@ -19,17 +19,18 @@
 package com.github.rwsbillyang.spider.video
 
 
-import com.github.rwsbillyang.spider.SeleniumSpider
+import com.github.rwsbillyang.spider.ChromeDriverServiceWrapper
+import com.github.rwsbillyang.spider.ISpider
 import com.github.rwsbillyang.spider.Spider
 import org.openqa.selenium.By
 import org.openqa.selenium.TimeoutException
 import org.openqa.selenium.WebDriver
 import org.openqa.selenium.WebElement
-import org.openqa.selenium.chrome.ChromeDriver
 import org.openqa.selenium.support.ui.WebDriverWait
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.io.IOException
+import java.net.MalformedURLException
 import java.time.Duration
 
 
@@ -47,9 +48,9 @@ import java.time.Duration
  *
  * 如果改用微信 user agent 有些链接会有问题，如：https://v.kuaishouapp.com/s/ZvjI41Js
  * */
-class KuaiShouSpider(binary: String? = null, uas: Array<String> = Spider.UAs_Mobile) : SeleniumSpider(binary, uas) {
+class KuaiShouSpider(private val webDriver: WebDriver): ISpider {
     private val log: Logger = LoggerFactory.getLogger("KuaiShouSpider")
-    override val regPattern = "[^x00-xff]*\\s*http(s)?://(\\w|-)+\\.kuaishou(app)?\\.com/\\S+\\s*[^x00-xff]*"
+    override val regPattern = "http(s)?://(\\w|-)+\\.kuaishou(app)?\\.com/\\S+\\s*[^x00-xff]*"
     override val errMsg = "请确认链接是否包含： https://v.kuaishou.com/ 或 https://v.kuaishouapp.com/"
 
     private fun decodeHttpUrl(originUrl: String): String {
@@ -71,19 +72,19 @@ class KuaiShouSpider(binary: String? = null, uas: Array<String> = Spider.UAs_Mob
 
         log.info("originUrl=$url, url=$url2")
 
-        val driver: WebDriver = ChromeDriver(chromeOptions)
+        //val driver: WebDriver = ChromeDriver(chromeOptions)
         try {
-            driver.get(url2)// 目标地址
-            val video: WebElement = WebDriverWait(driver, Duration.ofSeconds(15))
-                .until { driver.findElement(By.tagName("video")) }
+            webDriver.get(url2)// 目标地址
+            val video: WebElement = WebDriverWait(webDriver, Duration.ofSeconds(ChromeDriverServiceWrapper.timeOut))
+                .until { webDriver.findElement(By.tagName("video")) }
 
 
             map[Spider.VIDEO] = video.getAttribute("src")?.split("?")?.firstOrNull()
 
-            map[Spider.VIDEO_COVER] = driver.findElement(By.cssSelector("div.image-container>img")).getAttribute("src")
-            map[Spider.USER] = driver.findElement(By.cssSelector("div.user-name")).text?:"KuaiShou"
+            map[Spider.VIDEO_COVER] = webDriver.findElement(By.cssSelector("div.image-container>img")).getAttribute("src")
+            map[Spider.USER] = webDriver.findElement(By.cssSelector("div.user-name")).text?:"KuaiShou"
 
-            map[Spider.BRIEF] = driver.findElements(By.cssSelector("div.desc>span")).firstOrNull()?.text
+            map[Spider.BRIEF] = webDriver.findElements(By.cssSelector("div.desc>span")).firstOrNull()?.text
 
             map[Spider.TITLE] = ""
 
@@ -91,10 +92,12 @@ class KuaiShouSpider(binary: String? = null, uas: Array<String> = Spider.UAs_Mob
             map[Spider.RET] = Spider.OK
             map[Spider.MSG] = "恭喜，解析成功"
 
-        } catch(e: NoSuchElementException){
-            log.error("NoSuchElementException: ${e.message},driver.currentUrl=${driver.currentUrl}")
+        }catch(e: NoSuchElementException){
+            log.error("NoSuchElementException: ${e.message},driver.currentUrl=${webDriver.currentUrl}")
         }catch(e: TimeoutException){
-            log.error("TimeoutException: ${e.message},driver.currentUrl=${driver.currentUrl}")
+            log.error("TimeoutException: ${e.message},driver.currentUrl=${webDriver.currentUrl}")
+        }catch (e: MalformedURLException){
+            log.error("MalformedURLException: ${e.message},url=$url")
         }catch (e: IOException) {
             log.error("IOException: ${e.message},url=$url")
             map[Spider.MSG] = "获取内容时IO错误，请稍后再试"
@@ -105,19 +108,10 @@ class KuaiShouSpider(binary: String? = null, uas: Array<String> = Spider.UAs_Mob
             map[Spider.MSG] = "获取内容时出现错误，请稍后再试"
             map[Spider.RET] = Spider.KO
         }finally {
-            driver.close()
+            webDriver.close()
         }
 
         return map
     }
 }
 
-
-fun main(args: Array<String>) {
-    //https://v.kuaishou.com/uK4xt0 你以为的胸部像是水蜜桃，其实更像是葡萄，一不小心就可能揉坏了  "健康知识科普  "健康科普  "关爱女性健康        该作品在快手被播放过2,586.2万次，点击链接，打开【快手极速版】直接观看！
-    KuaiShouSpider("/Users/bill/git/youke/server/app/zhiKe/chromedriver")
-        .doParse("https://v.kuaishou.com/uK4xt0")
-        .forEach {
-            println("${it.key}=${it.value}")
-        }
-}
