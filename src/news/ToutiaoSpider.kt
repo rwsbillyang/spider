@@ -19,12 +19,11 @@
 package com.github.rwsbillyang.spider.news
 
 import com.github.rwsbillyang.spider.ChromeDriverServiceWrapper
-import com.github.rwsbillyang.spider.ISpider
 import com.github.rwsbillyang.spider.Spider
+import com.github.rwsbillyang.spider.WebDriverClient
 import com.github.rwsbillyang.spider.utils.HtmlImgUtil
 import org.openqa.selenium.By
 import org.openqa.selenium.TimeoutException
-import org.openqa.selenium.WebDriver
 import org.openqa.selenium.WebElement
 import org.openqa.selenium.support.ui.WebDriverWait
 import org.slf4j.Logger
@@ -34,7 +33,7 @@ import java.net.MalformedURLException
 import java.time.Duration
 
 
-class ToutiaoSpider(private val webDriver: WebDriver): ISpider {
+class ToutiaoSpider(uaIndex: Int = Spider.UAs_WX): WebDriverClient(uaIndex){
     private val log: Logger = LoggerFactory.getLogger("ToutiaoSpider")
     override val regPattern = "http(s)?://(m|www)\\.(toutiao|toutiaocdn|toutiaoimg)\\.(com|cn|net)/\\S+"
     override val errMsg = "可能不是头条链接"
@@ -148,7 +147,7 @@ class ToutiaoSpider(private val webDriver: WebDriver): ISpider {
             map[Spider.MSG] = "获取内容时出现错误，请稍后再试"
             map[Spider.RET] = Spider.KO
         }finally {
-            webDriver.close()
+            webDriver.quit()
         }
 
         return map

@@ -18,45 +18,42 @@
 
 package com.github.rwsbillyang.spider.test
 
-import com.github.rwsbillyang.spider.ChromeDriverServiceWrapper
 import com.github.rwsbillyang.spider.Spider
-import org.junit.AfterClass
-import org.junit.BeforeClass
-import java.io.IOException
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
+//需首先启动 chromedriver
 // skip test: ./gradlew build -x test
 open class SpiderTestBase {
-    companion object {
-        const val driverPath = "/Users/bill/git/youke/server/app/zhiKe/chromedriver"
-        val uas = Spider.UAs_WX
-
-        @JvmStatic
-        @BeforeClass
-        @Throws(IOException::class)
-        fun createAndStartService() {
-            ChromeDriverServiceWrapper.createAndStartService(driverPath)
-        }
-
-        @JvmStatic
-        @AfterClass
-        fun stopService() {
-            ChromeDriverServiceWrapper.stopService()
-        }
-    }
-
-    @org.junit.Before
-    open fun createDriver() {
-        ChromeDriverServiceWrapper.createDriver(uas)
-    }
-
-
-    @org.junit.After
-    open fun quitDriver() {
-        ChromeDriverServiceWrapper.quitDriver()
-    }
+//    companion object {
+//        const val driverPath = "/Users/bill/git/youke/server/app/zhiKe/chromedriver"
+//        val uas = Spider.UAs_WX
+//
+//        @JvmStatic
+//        @BeforeClass
+//        @Throws(IOException::class)
+//        fun createAndStartService() {
+//            ChromeDriverServiceWrapper.createAndStartService(driverPath)
+//        }
+//
+//        @JvmStatic
+//        @AfterClass
+//        fun stopService() {
+//            ChromeDriverServiceWrapper.stopService()
+//        }
+//    }
+//
+//    @org.junit.Before
+//    open fun createDriver() {
+//        ChromeDriverServiceWrapper.createDriver(uas)
+//    }
+//
+//
+//    @org.junit.After
+//    open fun quitDriver() {
+//        ChromeDriverServiceWrapper.quitDriver()
+//    }
 
 
     open fun newsTest(url: String) {
@@ -82,7 +79,8 @@ open class SpiderTestBase {
 
 
 fun main() {
-    Spider.parse("https://m.toutiaocdn.net/a6940884912362865183/?app=news_article&is_hit_share_recommend=0&share_token=a146bed7-329d-409d-8f54-77be583cd85b&tt_from=copy_link&utm_source=copy_link&utm_medium=toutiao_android&utm_campaign=client_share")
+    //需首先启动 chromedriver
+    Spider.parse("http://baijiahao.baidu.com/s?id=1692558786334703012")
         .forEach {
             println("${it.key}=${it.value}")
         }

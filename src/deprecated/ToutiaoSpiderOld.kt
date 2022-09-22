@@ -127,7 +127,7 @@ class ToutiaoSpiderOld : ISpider {
     private fun doParseBasedInJsoup(url: String, map: MutableMap<String, String?>) {
         try {
             val doc: Document =
-                Jsoup.connect(url).timeout(20 * 1000).userAgent(Spider.UAs_WX[Spider.UAs_WX.indices.random()])
+                Jsoup.connect(url).timeout(20 * 1000).userAgent(Spider.uas[Spider.UAs_WX][Spider.uas[Spider.UAs_WX].indices.random()])
                     .followRedirects(true).get()
 
             //https://m.toutiao.com/i6931886311808827912/info/v2/

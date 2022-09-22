@@ -23,7 +23,7 @@ import org.junit.Test
 
 class BaiDuTest: SpiderTestBase()  {
 
-   // @Test
+    //@Test
     fun test1(){
         newsTest("http://baijiahao.baidu.com/s?id=1692558786334703012")
     }
@@ -33,13 +33,13 @@ class BaiDuTest: SpiderTestBase()  {
         newsTest("https://mbd.baidu.com/newspage/data/landingshare?p_from=7&n_type=-1&context=%7B%22nid%22%3A%22news_9367297194102527383%22%7D")
     }
 
-   // @Test
+    //@Test
     fun test3(){
         //我国还要坚持食盐加碘政策吗？全国地方病防治专家回应
         newsTest("https://news.baidu.com/news#/detail/8569134799515423156")
     }
 
-    //@Test
+   // @Test
     fun test4(){
         newsTest("https://news.baidu.com/news#/detail/9083552498780951387")
     }

@@ -24,7 +24,7 @@ import com.github.rwsbillyang.spider.utils.ExtractRule
 import com.github.rwsbillyang.spider.utils.PrefixMatchRule
 import com.github.rwsbillyang.spider.utils.StartIndexHint
 
-class WechatArticleSpider: PageStreamParser(Spider.UAs_WX), ISpider {
+class WechatArticleSpider: PageStreamParser(Spider.uas[Spider.UAs_WX]), ISpider {
     override val regPattern = "http(s)?://mp\\.weixin\\.qq\\.com/\\S+"
     override val errMsg = "非mp.weixin.qq.com开头的文章链接无法上传"
 

@@ -18,11 +18,10 @@
 
 package com.github.rwsbillyang.spider.deprecated
 
-import com.github.rwsbillyang.spider.ISpider
 import com.github.rwsbillyang.spider.Spider
+import com.github.rwsbillyang.spider.WebDriverClient
 import org.openqa.selenium.By
 import org.openqa.selenium.TimeoutException
-import org.openqa.selenium.WebDriver
 import org.openqa.selenium.WebElement
 import org.openqa.selenium.support.ui.WebDriverWait
 import org.slf4j.Logger
@@ -35,7 +34,7 @@ import java.time.Duration
  * @Deprecate("ToutiaoSpider也支持视频")
  * */
 //https://m.toutiaoimg.cn/i6912100384953598475/
-class ToutiaoVideoSpider(private val webDriver: WebDriver): ISpider {
+class ToutiaoVideoSpider(uaIndex: Int = Spider.UAs_WX): WebDriverClient(uaIndex){
     private val log: Logger = LoggerFactory.getLogger("ToutiaoVideoSpider")
     override val regPattern = "http(s)?://(m|www)\\.toutiaoimg\\.(com|cn)/(a|i)\\S+"
     override val errMsg = "链接中需有这些字符：toutiaoimg.cn"
@@ -84,7 +83,7 @@ class ToutiaoVideoSpider(private val webDriver: WebDriver): ISpider {
             map[Spider.MSG] = "获取内容时出现错误，请稍后再试"
             map[Spider.RET] = Spider.KO
         }finally {
-            webDriver.close()
+            webDriver.quit()
         }
 
 

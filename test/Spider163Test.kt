@@ -20,7 +20,7 @@ package com.github.rwsbillyang.spider.test
 
 import org.junit.Test
 
-class Spider3G163Test: SpiderTestBase()  {
+class Spider163Test: SpiderTestBase()  {
 
     @Test
     fun test1(){
@@ -40,5 +40,26 @@ class Spider3G163Test: SpiderTestBase()  {
     @Test
     fun test4(){
         newsTest("https://3g.163.com/dy/article/HHF8N86G053469LG.html")
+    }
+
+
+    @Test
+    fun test11(){
+        newsTest("https://c.m.163.com/news/a/G3MCJ3SK05199NPP.html")
+    }
+
+    @Test
+    fun test12(){
+        newsTest("https://c.m.163.com/news/a/HHFA77BV000189FH.html")
+    }
+
+    @Test
+    fun test13(){
+        newsTest("https://c.m.163.com/news/a/HHF5GR5000019K82.html")
+    }
+
+    @Test
+    fun test14(){
+        newsTest("https://c.m.163.com/news/a/HGOG88IB0553A9YH.html")
     }
 }

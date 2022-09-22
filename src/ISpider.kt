@@ -38,12 +38,12 @@ interface ISpider {
      */
     fun doParse(url: String): Map<String, String?>
 
-    fun getConn(url: String, ua: Array<String> = Spider.UAs_Mobile): Connection {
+    fun getConn(url: String, ua: Array<String> = Spider.uas[Spider.UAs_Mobile]): Connection {
         return Jsoup.connect(url)
             .userAgent(ua[ua.indices.random()])
             .ignoreContentType(true)
     }
-    fun getRedirectURL(url: String, ua: Array<String> = Spider.UAs_Mobile): String? {
+    fun getRedirectURL(url: String, ua: Array<String> = Spider.uas[Spider.UAs_Mobile]): String? {
         return getConn(url, ua).followRedirects(false).timeout(10000).execute().header("location")
     }
 }

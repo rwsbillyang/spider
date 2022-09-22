@@ -20,12 +20,11 @@ package com.github.rwsbillyang.spider.news
 
 
 import com.github.rwsbillyang.spider.ChromeDriverServiceWrapper
-import com.github.rwsbillyang.spider.ISpider
 import com.github.rwsbillyang.spider.Spider
+import com.github.rwsbillyang.spider.WebDriverClient
 import com.github.rwsbillyang.spider.utils.HtmlImgUtil
 import org.openqa.selenium.By
 import org.openqa.selenium.TimeoutException
-import org.openqa.selenium.WebDriver
 import org.openqa.selenium.WebElement
 import org.openqa.selenium.support.ui.WebDriverWait
 import org.slf4j.Logger
@@ -34,7 +33,7 @@ import java.io.IOException
 import java.net.MalformedURLException
 import java.time.Duration
 
-class BaiduSpider(private val webDriver: WebDriver): ISpider {
+class BaiduSpider(uaIndex: Int = Spider.UAs_PC): WebDriverClient(uaIndex){
     private val log: Logger = LoggerFactory.getLogger("BaiduSpider")
 
     override val regPattern = "http(s)?://(baijiahao|news|mbd)\\.baidu\\.com/\\S+"
@@ -45,9 +44,17 @@ class BaiduSpider(private val webDriver: WebDriver): ISpider {
         log.info("parse url=$url")
 
          if(url.contains("baijiahao.") || url.contains("mbd.")){
-            parseBaiJiaHao(url, map)
+             if(uaIndex == Spider.UAs_PC){
+                 parseBaiJiaHaoByPc(url, map)
+             }else{
+                 parseBaiJiaHao(url, map)
+             }
         }else if(url.contains("news")){
-            parseBaiDuNews(url, map)
+            if(uaIndex == Spider.UAs_PC){
+                parseBaiNewsByPc(url, map)
+            }else{
+                parseBaiDuNews(url, map)
+            }
         }else{
             log.warn("not support url=$url")
             map[Spider.MSG] = "不支持链接，请使用baijiahao.baidu.com 或 news.baidu.com"
@@ -55,6 +62,7 @@ class BaiduSpider(private val webDriver: WebDriver): ISpider {
         }
         return map
     }
+
     private fun parseBaiJiaHao(url: String, map: MutableMap<String, String?>) {
         //val driver: WebDriver = ChromeDriver(chromeOptions)
         try {
@@ -75,7 +83,7 @@ class BaiduSpider(private val webDriver: WebDriver): ISpider {
 
             map[Spider.MSG] = "恭喜，解析成功"
             map[Spider.RET] = Spider.OK
-        } catch(e: NoSuchElementException){
+        }catch(e: NoSuchElementException){
             log.error("NoSuchElementException: ${e.message},driver.currentUrl=${webDriver.currentUrl}")
         }catch(e: TimeoutException){
             log.error("TimeoutException: ${e.message},driver.currentUrl=${webDriver.currentUrl}")
@@ -89,7 +97,7 @@ class BaiduSpider(private val webDriver: WebDriver): ISpider {
             map[Spider.MSG] = "获取内容时出现错误，请稍后再试"
             map[Spider.RET] = Spider.KO
         }finally {
-            webDriver.close()
+            webDriver.quit()
         }
 
     }
@@ -130,7 +138,81 @@ class BaiduSpider(private val webDriver: WebDriver): ISpider {
             map[Spider.MSG] = "获取内容时出现错误，请稍后再试"
             map[Spider.RET] = Spider.KO
         }finally {
-            webDriver.close()
+            webDriver.quit()
+        }
+    }
+    private fun parseBaiJiaHaoByPc(url: String, map: MutableMap<String, String?>) {
+        //val driver: WebDriver = ChromeDriver(chromeOptions)
+        try {
+            webDriver.get(url)// 目标地址
+            val contentElem: WebElement = WebDriverWait(webDriver, Duration.ofSeconds(ChromeDriverServiceWrapper.timeOut))
+                .until { webDriver.findElement(By.cssSelector("div.index-module_articleWrap_2Zphx ")) }
+
+            map[Spider.LINK] = webDriver.currentUrl
+            map[Spider.TITLE] = webDriver.title
+            map[Spider.USER] = webDriver.findElement(By.cssSelector("div.index-module_authorTxt_V6XfG>a>p")).text?:"百家号"
+
+            //map[Spider.BRIEF] = driver.findElement(By.cssSelector("meta[name=description]"))?.getAttribute("content")
+
+            val content = contentElem.getAttribute("innerHTML")
+            map[Spider.CONTENT] = content
+            if(content!= null)
+                map[Spider.IMGURL] = HtmlImgUtil.getImageSrc(content)?.firstOrNull()
+
+            map[Spider.MSG] = "恭喜，解析成功"
+            map[Spider.RET] = Spider.OK
+        }catch(e: NoSuchElementException){
+            log.error("NoSuchElementException: ${e.message},driver.currentUrl=${webDriver.currentUrl}")
+        }catch(e: TimeoutException){
+            log.error("TimeoutException: ${e.message},driver.currentUrl=${webDriver.currentUrl}")
+        }catch (e: IOException) {
+            log.error("IOException: ${e.message},url=$url")
+            map[Spider.MSG] = "获取内容时IO错误，请稍后再试"
+            map[Spider.RET] = Spider.KO
+        }catch (e: Exception){
+            e.printStackTrace()
+            log.error("Exception: ${e.message}, url=$url")
+            map[Spider.MSG] = "获取内容时出现错误，请稍后再试"
+            map[Spider.RET] = Spider.KO
+        }finally {
+            webDriver.quit()
+        }
+
+    }
+    private fun parseBaiNewsByPc(url: String, map: MutableMap<String, String?>) {
+        try {
+            webDriver.get(url)// 目标地址
+            val contentElem: WebElement = WebDriverWait(webDriver, Duration.ofSeconds(ChromeDriverServiceWrapper.timeOut))
+                .until { webDriver.findElement(By.cssSelector("div.index-module_articleWrap_2Zphx")) }
+
+            map[Spider.LINK] = webDriver.currentUrl
+            map[Spider.TITLE] = webDriver.title
+            map[Spider.USER] = webDriver.findElement(By.cssSelector("p.index-module_authorName_7y5nA")).text?:"百家号"
+
+            //map[Spider.BRIEF] = driver.findElement(By.cssSelector("meta[name=description]"))?.getAttribute("content")
+
+            val content = contentElem.getAttribute("innerHTML")
+            map[Spider.CONTENT] = content
+//            if(content!= null)
+//                map[Spider.IMGURL] = HtmlImgUtil.getImageSrc(content)?.firstOrNull()
+
+            map[Spider.MSG] = "恭喜，解析成功"
+            map[Spider.RET] = Spider.OK
+        }catch(e: NoSuchElementException){
+            log.error("NoSuchElementException: ${e.message},driver.currentUrl=${webDriver.currentUrl}")
+        }catch(e: TimeoutException){
+            log.error("TimeoutException: ${e.message},driver.currentUrl=${webDriver.currentUrl}")
+        }catch (e: IOException) {
+            log.error("IOException: ${e.message},url=$url")
+            map[Spider.MSG] = "获取内容时IO错误，请稍后再试"
+            map[Spider.RET] = Spider.KO
+        }catch (e: Exception){
+            e.printStackTrace()
+            log.error("Exception: ${e.message}, url=$url")
+            map[Spider.MSG] = "获取内容时出现错误，请稍后再试"
+            map[Spider.RET] = Spider.KO
+        }finally {
+            webDriver.quit()
         }
     }
 }

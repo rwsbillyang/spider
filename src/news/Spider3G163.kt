@@ -24,7 +24,7 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import java.io.IOException
 
-class Spider3G163: PageStreamParser(Spider.UAs_WX), ISpider {
+class Spider3G163: PageStreamParser(Spider.uas[Spider.UAs_WX]), ISpider {
     override val regPattern = "http(s)?://(3g|news|www)\\.163\\.com/\\S+"
     override val errMsg = "请确认链接是否以开头： https://3g.163.com/"
 
@@ -56,7 +56,7 @@ class Spider3G163: PageStreamParser(Spider.UAs_WX), ISpider {
 
         try {
             val doc: Document =
-                Jsoup.connect(url).timeout(20 * 1000).userAgent(Spider.UAs_PC[Spider.UAs_PC.indices.random()])
+                Jsoup.connect(url).timeout(20 * 1000).userAgent(Spider.uas[Spider.UAs_PC][Spider.uas[Spider.UAs_PC].indices.random()])
                     .followRedirects(true).get()
             map[Spider.TITLE] = doc.select("h1.title").text()
             map[Spider.IMGURL] = doc.select("meta[property=og:image]").attr("content")

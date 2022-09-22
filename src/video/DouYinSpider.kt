@@ -74,7 +74,7 @@ class DouYinSpider: ISpider{
                 url
             }else{
                 //https://www.iesdouyin.com/share/video/6846660517122084096/?region=CN&mid=6846660529788947213&u_code=kja81591&titleType=title&utm_source=copy_link&utm_campaign=client_share&utm_medium=android&app=aweme
-                getRedirectURL(url,Spider.UAs_WX)
+                getRedirectURL(url,Spider.uas[Spider.UAs_WX])
             }
             log.info("parse iesUrl=$iesUrl")
 
@@ -89,7 +89,7 @@ class DouYinSpider: ISpider{
             val apiUrl = "https://www.iesdouyin.com/web/api/v2/aweme/iteminfo/?item_ids=$mid"
 
             //https://www.iesdouyin.com/web/api/v2/aweme/iteminfo/?item_ids=6846660517122084096
-            val con = getConn(apiUrl, Spider.UAs_WX)
+            val con = getConn(apiUrl, Spider.uas[Spider.UAs_WX])
             val res: Connection.Response = con.ignoreContentType(true).timeout(10000).execute()
 
             val resText = res.body()

@@ -20,11 +20,10 @@ package com.github.rwsbillyang.spider.video
 
 
 import com.github.rwsbillyang.spider.ChromeDriverServiceWrapper
-import com.github.rwsbillyang.spider.ISpider
 import com.github.rwsbillyang.spider.Spider
+import com.github.rwsbillyang.spider.WebDriverClient
 import org.openqa.selenium.By
 import org.openqa.selenium.TimeoutException
-import org.openqa.selenium.WebDriver
 import org.openqa.selenium.WebElement
 import org.openqa.selenium.support.ui.WebDriverWait
 import org.slf4j.Logger
@@ -48,7 +47,7 @@ import java.time.Duration
  *
  * 如果改用微信 user agent 有些链接会有问题，如：https://v.kuaishouapp.com/s/ZvjI41Js
  * */
-class KuaiShouSpider(private val webDriver: WebDriver): ISpider {
+class KuaiShouSpider(uaIndex: Int = Spider.UAs_WX): WebDriverClient(uaIndex) {
     private val log: Logger = LoggerFactory.getLogger("KuaiShouSpider")
     override val regPattern = "http(s)?://(\\w|-)+\\.kuaishou(app)?\\.com/\\S+\\s*[^x00-xff]*"
     override val errMsg = "请确认链接是否包含： https://v.kuaishou.com/ 或 https://v.kuaishouapp.com/"
@@ -108,7 +107,7 @@ class KuaiShouSpider(private val webDriver: WebDriver): ISpider {
             map[Spider.MSG] = "获取内容时出现错误，请稍后再试"
             map[Spider.RET] = Spider.KO
         }finally {
-            webDriver.close()
+            webDriver.quit()
         }
 
         return map

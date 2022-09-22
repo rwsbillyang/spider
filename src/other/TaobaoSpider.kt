@@ -18,8 +18,8 @@
 
 package com.github.rwsbillyang.spider.other
 
-import com.github.rwsbillyang.spider.ISpider
 import com.github.rwsbillyang.spider.Spider
+import com.github.rwsbillyang.spider.WebDriverClient
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -49,8 +49,7 @@ class TaobaoProduct(
 )
 
 
-class TaobaoSpider(private val username: String, private val password: String,private val webDriver: WebDriver):
-    ISpider {
+class TaobaoSpider(private val username: String, private val password: String,uaIndex: Int = Spider.UAs_Mobile): WebDriverClient(uaIndex) {
     private val log: Logger = LoggerFactory.getLogger("TaobaoSpider")
 
     private val mobileLoginUrl = "https://login.m.taobao.com/login.htm"
@@ -110,7 +109,7 @@ class TaobaoSpider(private val username: String, private val password: String,pr
             map[Spider.MSG] = "获取内容时出现错误，请稍后再试"
             map[Spider.RET] = Spider.KO
         }finally {
-            webDriver.close()
+            webDriver.quit()
         }
 
 

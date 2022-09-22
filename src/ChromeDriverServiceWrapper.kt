@@ -30,7 +30,11 @@ import java.io.File
 import java.io.IOException
 
 
-//https://chromedriver.chromium.org/getting-started
+
+/**
+ * @deprecated("use seperated chromedriver process")
+ * https://chromedriver.chromium.org/getting-started
+ * */
 object ChromeDriverServiceWrapper{
     private val log: Logger = LoggerFactory.getLogger("ChromeDriverServiceWrapper")
     val timeOut = 20L

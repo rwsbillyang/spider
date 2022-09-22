@@ -26,7 +26,7 @@ import com.github.rwsbillyang.spider.utils.*
  * 网页html全部在一行，使用LoopMode.ByField
  * @deprecated("头条升级导致不能使用")
  * */
-class ToutiaoSpiderOld2 : PageStreamParser(Spider.UAs_WX, LoopMode.ByField), ISpider {
+class ToutiaoSpiderOld2 : PageStreamParser(Spider.uas[Spider.UAs_WX], LoopMode.ByField), ISpider {
 
     override val regPattern = "http(s)?://(m|www)\\.toutiao(cdn)?\\.(com|cn|net)/(a|i|article)\\S+"
     override val errMsg =

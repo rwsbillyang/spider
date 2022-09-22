@@ -26,7 +26,7 @@ import com.github.rwsbillyang.spider.utils.*
  * @Deprecated("等同于3g.163.com")
  * TODO: 里面的视频有问题
  * */
-class Spider163: PageStreamParser(Spider.UAs_WX), ISpider {
+class Spider163: PageStreamParser(Spider.uas[Spider.UAs_WX]), ISpider {
     override val regPattern = "http(s)?://(news|www)?\\.?163\\.com/\\S+"
     override val errMsg = "请确认链接是否以开头： https://3g.163.com/"
 
@@ -56,10 +56,3 @@ class Spider163: PageStreamParser(Spider.UAs_WX), ISpider {
     }
 }
 
-fun main(args: Array<String>) {
-    //https://www.163.com/dy/article/G3M3MP6G0534P59R.html?clickfrom=w_yw
-    Spider163().doParse("https://www.163.com/dy/article/G3M3MP6G0534P59R.html?clickfrom=w_yw")
-        .forEach {
-            println("${it.key}=${it.value}")
-        }
-}
