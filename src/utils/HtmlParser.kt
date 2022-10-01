@@ -133,31 +133,12 @@ enum class LoopMode{
  * 对请求获取的网页字符串流进行处理，逐行检查获取所需的值
  * */
 class HtmlParser(private val loopMode:LoopMode = LoopMode.ByLine) {
-    val log: Logger = LoggerFactory.getLogger("HtmlParser")
+    private val log: Logger = LoggerFactory.getLogger("HtmlParser")
 
     private var currentLineIndex: Int = 0 //当前待解析的行
     private var extractCount: Int = 0 //已解析出的结果计数
     private var loopTime: Int = 0 //ByField时会计数，用于抽取不到值时循环计数，及时退出循环
 
-    /**
-     * 默认实现适用于html文档有很多行，需要提取的数据分布在各行上，遍历各行进行解析提取
-     * 还有一种可能是html无换行，全部在一行，这时提取需要对各字段进行循环，进行解析提取
-     * */
-    private fun continueLoop(lines: List<String>, extractRules: Array<ExtractRule>): Boolean{
-        //没有内容了，退出循环
-        if(currentLineIndex >= lines.size) return false
-
-        //已经全部得到值，无需再进行解析，退出循环
-        if(extractCount >= extractRules.size) return false
-
-        //log.info("currentLineIndex=$currentLineIndex")
-        return if(LoopMode.ByField == loopMode){
-            loopTime++
-            //只有一行时，遍历次数够了，也退出循环
-            loopTime <= extractRules.size
-        }else
-            true
-    }
 
     fun parse(html: String, extractRules: Array<ExtractRule>, resultMap: MutableMap<String, String?>) {
         if (html.isBlank()) {
@@ -269,6 +250,27 @@ class HtmlParser(private val loopMode:LoopMode = LoopMode.ByLine) {
             return
         }
     }
+
+    /**
+     * 默认实现适用于html文档有很多行，需要提取的数据分布在各行上，遍历各行进行解析提取
+     * 还有一种可能是html无换行，全部在一行，这时提取需要对各字段进行循环，进行解析提取
+     * */
+    private fun continueLoop(lines: List<String>, extractRules: Array<ExtractRule>): Boolean{
+        //没有内容了，退出循环
+        if(currentLineIndex >= lines.size) return false
+
+        //已经全部得到值，无需再进行解析，退出循环
+        if(extractCount >= extractRules.size) return false
+
+        //log.info("currentLineIndex=$currentLineIndex")
+        return if(LoopMode.ByField == loopMode){
+            loopTime++
+            //只有一行时，遍历次数够了，也退出循环
+            loopTime <= extractRules.size
+        }else
+            true
+    }
+
     /**
      * 抽取行中的值，结果放入map中，只对单行模式使用，当需要抽取的值处在多行时，需另行处理。
      *

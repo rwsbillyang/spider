@@ -77,10 +77,3 @@ class BaiduSpiderOld : ISpider {
         return map
     }
 }
-
-fun main(args: Array<String>) {
-    BaiduSpiderOld().doParse("http://baijiahao.baidu.com/s?id=1692558786334703012")
-        .forEach {
-            println("${it.key}=${it.value}")
-        }
-}

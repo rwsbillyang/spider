@@ -50,15 +50,3 @@ class ToutiaoSpiderOld2 : PageStreamParser(Spider.uas[Spider.UAs_WX], LoopMode.B
     }
 
 }
-
-
-
-
-
-//https://www.toutiao.com/article/7132394799076311584/?app=news_article&timestamp=1663290936&use_new_style=1&req_id=202209160915350101960350661A25B143&group_id=7132394799076311584&share_token=63da7242-3e4d-48d6-8676-42d6ca662a06&tt_from=copy_link&utm_source=copy_link&utm_medium=toutiao_android&utm_campaign=client_share&source=m_redirect&wid=1663291414789
-fun main(args: Array<String>) {
-    ToutiaoSpiderOld2().doParse("https://www.toutiao.com/article/7132394799076311584/?app=news_article&timestamp=1663290936&use_new_style=1&req_id=202209160915350101960350661A25B143&group_id=7132394799076311584&share_token=63da7242-3e4d-48d6-8676-42d6ca662a06&tt_from=copy_link&utm_source=copy_link&utm_medium=toutiao_android&utm_campaign=client_share&source=m_redirect&wid=1663291414789")
-        .forEach {
-            println("${it.key}=${it.value}")
-        }
-}

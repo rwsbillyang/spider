@@ -25,15 +25,10 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.jsoup.Jsoup
 import org.openqa.selenium.By
-import org.openqa.selenium.TimeoutException
 import org.openqa.selenium.WebDriver
 import org.openqa.selenium.WebElement
 import org.openqa.selenium.interactions.Actions
 import org.openqa.selenium.support.ui.WebDriverWait
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
-import java.io.IOException
-import java.net.MalformedURLException
 import java.time.Duration
 
 @Serializable
@@ -50,70 +45,42 @@ class TaobaoProduct(
 
 
 class TaobaoSpider(private val username: String, private val password: String,uaIndex: Int = Spider.UAs_Mobile): WebDriverClient(uaIndex) {
-    private val log: Logger = LoggerFactory.getLogger("TaobaoSpider")
 
     private val mobileLoginUrl = "https://login.m.taobao.com/login.htm"
 
     var isLogin = false
     override val regPattern: String = "http(s)?://(m|www)\\.taobao\\.com/\\S+"
     override val errMsg: String = "非淘宝网址"
+    override fun extract(url: String,map: MutableMap<String, String?>){
+        val body: WebElement =  WebDriverWait(webDriver, Duration.ofSeconds(15))
+            .until { webDriver.findElement(By.tagName("body")) }
+        log.info(body.text)
 
+        //注意：class必须严格字符串匹配，包括空格
+        val itemList = WebDriverWait(webDriver, Duration.ofSeconds(15))
+            .until { webDriver.findElements(By.xpath("//div[@class='item J_MouserOnverReq  ']")) }
+
+        var number = 1
+        val list = itemList.map {
+            parsePcItem(it, number++)
+        }
+
+        val listStr = Json.encodeToString(list)
+
+        log.info("list=$listStr")
+
+        map[Spider.CONTENT] = listStr
+        map[Spider.MSG] = "恭喜，解析成功"
+        map[Spider.RET] = Spider.OK
+    }
     override fun doParse(url: String): Map<String, String?> {
-       // val driver: WebDriver = ChromeDriver(chromeOptions)
-
         if(!isLogin){
             userMobileLogin(webDriver)
         }
 
         Thread.sleep(2000)
 
-
-        val map = mutableMapOf<String, String?>()
-
-        try {
-            log.info("parse url=$url")
-            webDriver.get(url)// 目标地址
-            val body: WebElement =  WebDriverWait(webDriver, Duration.ofSeconds(15))
-                .until { webDriver.findElement(By.tagName("body")) }
-            log.info(body.text)
-
-            //注意：class必须严格字符串匹配，包括空格
-            val itemList = WebDriverWait(webDriver, Duration.ofSeconds(15))
-                .until { d -> webDriver.findElements(By.xpath("//div[@class='item J_MouserOnverReq  ']")) }
-
-            var number = 1
-            val list = itemList.map {
-                parsePcItem(it, number++)
-            }
-
-            val listStr = Json.encodeToString(list)
-
-            log.info("list=$listStr")
-
-            map[Spider.CONTENT] = listStr
-            map[Spider.MSG] = "恭喜，解析成功"
-            map[Spider.RET] = Spider.OK
-        }catch(e: NoSuchElementException){
-            log.error("NoSuchElementException: ${e.message},driver.currentUrl=${webDriver.currentUrl}")
-        }catch(e: TimeoutException){
-            log.error("TimeoutException: ${e.message},driver.currentUrl=${webDriver.currentUrl}")
-        }catch (e: MalformedURLException){
-            log.error("MalformedURLException: ${e.message},url=$url")
-        }catch (e: IOException) {
-            log.error("IOException: ${e.message},url=$url")
-            map[Spider.MSG] = "获取内容时IO错误，请稍后再试"
-            map[Spider.RET] = Spider.KO
-        }catch (e: Exception){
-            e.printStackTrace()
-            log.error("Exception: ${e.message}, url=$url")
-            map[Spider.MSG] = "获取内容时出现错误，请稍后再试"
-            map[Spider.RET] = Spider.KO
-        }finally {
-            webDriver.quit()
-        }
-
-
-        return map
+        return super.doParse(url)
     }
 
 
