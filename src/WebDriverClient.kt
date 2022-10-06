@@ -32,7 +32,7 @@ import java.net.MalformedURLException
  * */
 abstract class WebDriverClient(val uaIndex: Int, private val imagesEnabled:Boolean = false) : ISpider {
     protected val log: Logger = LoggerFactory.getLogger("WebDriverClient")
-
+    private var ua: String? = null
     abstract fun extract(url: String, map: MutableMap<String, String?>)
     override fun doParse(url: String): Map<String, String?> {
         log.info("doParse url=$url")
@@ -45,19 +45,24 @@ abstract class WebDriverClient(val uaIndex: Int, private val imagesEnabled:Boole
             extract(url, map)
 
         } catch (e: NoSuchElementException) {
-            log.error("NoSuchElementException: ${e.message},driver.currentUrl=${webDriver.currentUrl}")
+            log.error("driver.currentUrl=${webDriver.currentUrl}, ua=$ua, NoSuchElementException: ${e.message}")
+            map[Spider.MSG] = e.message
+            map[Spider.RET] = Spider.KO
         } catch (e: TimeoutException) {
-            log.error("TimeoutException: ${e.message},driver.currentUrl=${webDriver.currentUrl}")
+            log.error("driver.currentUrl=${webDriver.currentUrl}, ua=$ua, TimeoutException: ${e.message}")
+            map[Spider.MSG] = e.message
+            map[Spider.RET] = Spider.KO
         } catch (e: MalformedURLException) {
-            log.error("MalformedURLException: ${e.message},url=$url")
+            log.error("url=$url, ua=$ua, MalformedURLException: ${e.message}")
+            map[Spider.MSG] = e.message
+            map[Spider.RET] = Spider.KO
         } catch (e: IOException) {
-            log.error("IOException: ${e.message},url=$url")
-            map[Spider.MSG] = "获取内容时IO错误，请稍后再试"
+            log.error("url=$url, ua=$ua, IOException: ${e.message}")
+            map[Spider.MSG] = e.message
             map[Spider.RET] = Spider.KO
         } catch (e: Exception) {
-            e.printStackTrace()
-            log.error("Exception: ${e.message}, url=$url")
-            map[Spider.MSG] = "获取内容时出现错误，请稍后再试"
+            log.error("url=$url, ua=$ua, Exception: ${e.message}")
+            map[Spider.MSG] = e.message
             map[Spider.RET] = Spider.KO
         } finally {
             webDriver.quit()
@@ -67,7 +72,8 @@ abstract class WebDriverClient(val uaIndex: Int, private val imagesEnabled:Boole
 
     private val chromeOptions = ChromeOptions().apply {
         setHeadless(true) //已包含addArguments("--disable-gpu")
-        addArguments("--user-agent=" + Spider.uas[uaIndex][Spider.uas[uaIndex].indices.random()])
+        ua = Spider.uas[uaIndex][Spider.uas[uaIndex].indices.random()]
+        addArguments("--user-agent=$ua")
         addArguments("--blink-settings=imagesEnabled=$imagesEnabled") //禁用图片加载
         if(!imagesEnabled)addArguments("--disable-images")
         addArguments("--incognito")

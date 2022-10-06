@@ -23,6 +23,8 @@ import com.github.rwsbillyang.spider.ChromeDriverServiceWrapper
 import com.github.rwsbillyang.spider.Spider
 import com.github.rwsbillyang.spider.WebDriverClient
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import org.openqa.selenium.By
 import org.openqa.selenium.WebElement
 import org.openqa.selenium.interactions.Actions
@@ -39,6 +41,10 @@ fun String.between(startDelimiter: String, endDelimiter: String): String? {
     val end = if (endIndex < 0) this.length else endIndex
     return this.substring(start, end)
 }
+/**
+ * .webp等后缀去掉，因老本部iPhone不支持webp
+ * */
+fun String.removeWebp() = replace(Regex("\\.(jpg|png)!q(\\d+)\\.dpg(\\.webp)?"),".$1")
 
 @Serializable
 class JdGoods(
@@ -46,12 +52,14 @@ class JdGoods(
     var brand: String? = null,
     var intro: String? = null,
     var mobileIntro: String? = null,
-    val skuList: MutableList<SkuInfo> = mutableListOf()
+    val skuList: MutableList<SkuInfo> = mutableListOf(),
+    var pcErr: String? = null, //error msg if have
+    var mobileErr: String? = null //error msg if have
 )
 
 @Serializable
 class SkuInfo(
-    val id: String? = null,
+    var id: String? = null,
     val name: String? = null,
     var price: String? = null,
     var images: List<String>? = null
@@ -71,6 +79,7 @@ class JdSpiderPc(private val goods: JdGoods, uaIndex: Int = Spider.UAs_PC) : Web
             .replace(Regex("\\s+src=\"\\S+?\""), "")
             .replace("class=\"ELazy-loading\"", "")
             .replace("data-lazyload", "src")
+            .removeWebp()
 
         goods.brand =
             webDriver.findElements(By.cssSelector("ul#parameter-brand>li")).firstOrNull()?.getAttribute("title")
@@ -86,7 +95,7 @@ class JdSpiderPc(private val goods: JdGoods, uaIndex: Int = Spider.UAs_PC) : Web
 }
 
 //https://item.m.jd.com/product/10026501135667.html
-class JdSpiderMobile(private val goods: JdGoods, uaIndex: Int = Spider.UAs_Mobile) : WebDriverClient(uaIndex, true) {
+class JdSpiderMobile(private val goods: JdGoods, uaIndex: Int = Spider.UAs_WX) : WebDriverClient(uaIndex, true) {
     override val regPattern: String = "http(s)?://item\\.m\\.jd\\.com/\\S+"
     override val errMsg: String = "非JD mobile网址"
 
@@ -104,20 +113,20 @@ class JdSpiderMobile(private val goods: JdGoods, uaIndex: Int = Spider.UAs_Mobil
         val contentDiv = wait.until{webDriver.findElement(By.cssSelector("div#commDesc"))}
         //val contentDiv = wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("div#commDesc")))//将得到的正常加载的img及其src
 
-        goods.mobileIntro = contentDiv.getAttribute("innerHTML")
+        goods.mobileIntro = contentDiv.getAttribute("innerHTML").removeWebp()
         //.replace(Regex("\\s+src=\"\\S+?\""), "")
         //.replace("item_init_src","src")
 
-
+        Thread.sleep(5000)
         webDriver.executeScript("window.scrollTo(0,0)")//回到顶部
         Thread.sleep(500)
         webDriver.executeScript("window.scrollBy(0,200)")//再往下移动显示skuWindow
         Thread.sleep(500)
 
-        val skuWindow: WebElement = webDriver.findElement(By.cssSelector("div#skuWindow")) //elementToBeClickable
-        wait.until(ExpectedConditions.elementToBeClickable(skuWindow))
+        //val skuWindow: WebElement = webDriver.findElement(By.cssSelector("div#skuWindow")) //elementToBeClickable
+        val skuWindow =  wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector("div#skuWindow")))
         skuWindow.click()
-        Thread.sleep(1000)
+        Thread.sleep(500)
         val skuPop1 = webDriver.findElement(By.cssSelector("div#skuPop1"))
         if (goods.skuList.isEmpty()) {//如果没有信息列表的话，获取sku name，形成列表
             skuPop1.findElements(By.cssSelector("span.item")).forEach {
@@ -131,9 +140,8 @@ class JdSpiderMobile(private val goods: JdGoods, uaIndex: Int = Spider.UAs_Mobil
             getPrice(currentIndex)
             getSlides(currentIndex)
             resultMap[currentIndex] = true
-
             if(!goods.title.isNullOrEmpty()){
-                goods.skuList[currentIndex].name?.let { goods.title = goods.title?.substringBefore(it) }
+                goods.skuList[currentIndex].name?.let { goods.title = webDriver.title?.substringBefore(it)?.trim() }
             }
         }
 
@@ -183,7 +191,8 @@ class JdSpiderMobile(private val goods: JdGoods, uaIndex: Int = Spider.UAs_Mobil
         goods.skuList[index].images = webDriver.findElements(By.cssSelector("div#loopImgDiv>div.inner>ul>li>img"))
             .map {
                 val backSrc = it.getAttribute("back_src")
-                if (backSrc.isNullOrEmpty()) it.getAttribute("src") else backSrc
+                val src = if (backSrc.isNullOrEmpty()) it.getAttribute("src") else backSrc
+                src.removeWebp()
             }
     }
 
@@ -204,28 +213,36 @@ class JdSpiderMobile(private val goods: JdGoods, uaIndex: Int = Spider.UAs_Mobil
 object JdSpider {
     fun parse(id: String): JdGoods {
         val goods = JdGoods()
-        JdSpiderPc(goods).doParse("https://item.jd.com/$id.html")
+        goods.pcErr = JdSpiderPc(goods).doParse("https://item.jd.com/$id.html")[Spider.MSG]
         Thread.sleep(1000)
-        JdSpiderMobile(goods).doParse("https://item.m.jd.com/product/$id.html")
+        goods.mobileErr = JdSpiderMobile(goods).doParse("https://item.m.jd.com/product/$id.html")[Spider.MSG]
+
+        if(goods.skuList.size == 1) //无sku时，PC版不展示SKU，移动版只有一个sku
+            goods.skuList[0].id = id
 
         return goods
     }
 }
 
+
+
 fun main() {
     //https://item.m.jd.com/product/10026501135667.html
-    //val g = JdSpider.parse("10026501135667")
-    //println(Json { prettyPrint = true }.encodeToString(g))
+    val g = JdSpider.parse("10059352787886")
+    println(Json { prettyPrint = true }.encodeToString(g))
 
 //    val str = "<p><img item_init_src=\"//img10.360buyimg.com/imgzone/jfs/t1/152220/31/14227/107152/5ffc3949E9bd21aba/95fd239894de25fc.jpg!q70.dpg.webp\" src=\"//wq.360buyimg.com/fd/h5/base/detail/images/transparent_a38f0a03.png\"><img item_init_src=\"//img12.360buyimg.com/imgzone/jfs/t1/168708/1/3202/186740/6005357aEd99cb2ff/142245d7ea50feab.jpg!q70.dpg.webp\" src=\"//wq.360buyimg.com/fd/h5/base/detail/images/transparent_a38f0a03.png\"><img item_init_src=\"//img14.360buyimg.com/imgzone/jfs/t1/160119/23/3751/172034/6005357dE36120859/fa64678dc60241de.jpg!q70.dpg.webp\" src=\"//wq.360buyimg.com/fd/h5/base/detail/images/transparent_a38f0a03.png\"><img item_init_src=\"//img14.360buyimg.com/imgzone/jfs/t1/160248/33/3957/154646/60053580Eeb4e46cb/fb293b81b07d725a.jpg!q70.dpg.webp\" src=\"//wq.360buyimg.com/fd/h5/base/detail/images/transparent_a38f0a03.png\"><img item_init_src=\"//img20.360buyimg.com/imgzone/jfs/t1/161430/24/3293/109621/60053583Ec977d16e/e5567b9da976ffb6.jpg!q70.dpg.webp\" src=\"//wq.360buyimg.com/fd/h5/base/detail/images/transparent_a38f0a03.png\"><img item_init_src=\"//img30.360buyimg.com/popWareDetail/jfs/t1/158338/33/3848/137546/6005359dEfc6e54eb/0e879288fc4ca602.jpg!q70.dpg.webp\" src=\"//wq.360buyimg.com/fd/h5/base/detail/images/transparent_a38f0a03.png\"><img item_init_src=\"//img30.360buyimg.com/popWareDetail/jfs/t1/154556/22/15010/169161/600535a0E4bdba2d4/9de90232335de737.jpg!q70.dpg.webp\" src=\"//wq.360buyimg.com/fd/h5/base/detail/images/transparent_a38f0a03.png\"><img item_init_src=\"//img30.360buyimg.com/popWareDetail/jfs/t1/161943/35/3329/126048/600535a5E12144b2d/44ac287a096eac16.jpg!q70.dpg.webp\" src=\"//wq.360buyimg.com/fd/h5/base/detail/images/transparent_a38f0a03.png\"><img item_init_src=\"//img30.360buyimg.com/popWareDetail/jfs/t1/164012/31/3192/115635/600535a8E260aba7c/b15be526f4c39894.jpg!q70.dpg.webp\" src=\"//wq.360buyimg.com/fd/h5/base/detail/images/transparent_a38f0a03.png\"><img item_init_src=\"//img30.360buyimg.com/popWareDetail/jfs/t1/156963/35/6455/148034/600535acE71b28440/33f51f4222efb309.jpg!q70.dpg.webp\" src=\"//wq.360buyimg.com/fd/h5/base/detail/images/transparent_a38f0a03.png\"><img item_init_src=\"//img30.360buyimg.com/popWareDetail/jfs/t1/153805/21/15116/132107/600535afE1919fcbc/5c57c6f49b737019.jpg!q70.dpg.webp\" src=\"//wq.360buyimg.com/fd/h5/base/detail/images/transparent_a38f0a03.png\"><img item_init_src=\"//img30.360buyimg.com/popWareDetail/jfs/t1/161476/1/3215/173956/600535b2E3737a485/bf35f1cfcc0e32bd.jpg!q70.dpg.webp\" src=\"//wq.360buyimg.com/fd/h5/base/detail/images/transparent_a38f0a03.png\"><img item_init_src=\"//img30.360buyimg.com/popWareDetail/jfs/t1/171030/15/3237/183474/600535b5Ee06cb851/f656618be54f41ed.jpg!q70.dpg.webp\" src=\"//wq.360buyimg.com/fd/h5/base/detail/images/transparent_a38f0a03.png\"><img item_init_src=\"//img30.360buyimg.com/popWareDetail/jfs/t1/158243/28/3900/164267/600535b8E7e09a5f0/6d40261d3fcc9223.jpg!q70.dpg.webp\" src=\"//wq.360buyimg.com/fd/h5/base/detail/images/transparent_a38f0a03.png\"><img item_init_src=\"//img30.360buyimg.com/popWareDetail/jfs/t1/87503/28/22816/105718/62047f26E240ae387/1ce9c21cab12162a.jpg!q70.dpg.webp\" src=\"//wq.360buyimg.com/fd/h5/base/detail/images/transparent_a38f0a03.png\"><img item_init_src=\"//img10.360buyimg.com/imgzone/jfs/t1/52688/12/10287/42281/5d777574E4d3e2af3/629b9e1a429a4d63.jpg!q70.dpg.webp\" src=\"//wq.360buyimg.com/fd/h5/base/detail/images/transparent_a38f0a03.png\"></p><p><br></p>"
 //    println(str)
 //    println(str.replace(Regex("\\s+src=\"\\S+?\""), ""))
 
-    val str2 = "<p><img style=\"width:auto;height:auto;max-width:100%;\" data-lazyload=\"http://img30.360buyimg.com/popWareDetail/jfs/t1/171030/15/3237/183474/600535b5Ee06cb851/f656618be54f41ed.jpg\" class=\"ELazy-loading\" src=\"//misc.360buyimg.com/lib/img/e/blank.gif\"><img style=\"width:auto;height:auto;max-width:100%;\" data-lazyload=\"http://img30.360buyimg.com/popWareDetail/jfs/t1/158243/28/3900/164267/600535b8E7e09a5f0/6d40261d3fcc9223.jpg\" class=\"ELazy-loading\" src=\"//misc.360buyimg.com/lib/img/e/blank.gif\"><img data-lazyload=\"//img10.360buyimg.com/imgzone/jfs/t1/52688/12/10287/42281/5d777574E4d3e2af3/629b9e1a429a4d63.jpg\" style=\"width: auto; height: auto; max-width: 100%;\" class=\"ELazy-loading\" src=\"//misc.360buyimg.com/lib/img/e/blank.gif\"><br></p><p><br></p><br>"
-    println(str2)
-    println(str2
-        .replace(Regex("\\s+src=\"\\S+?\""), "")
-        .replace("class=\"ELazy-loading\"", "")
-        .replace("data-lazyload", "src")
-        )
+//    val str2 = "<p><img style=\"width:auto;height:auto;max-width:100%;\" data-lazyload=\"http://img30.360buyimg.com/popWareDetail/jfs/t1/171030/15/3237/183474/600535b5Ee06cb851/f656618be54f41ed.jpg\" class=\"ELazy-loading\" src=\"//misc.360buyimg.com/lib/img/e/blank.gif\"><img style=\"width:auto;height:auto;max-width:100%;\" data-lazyload=\"http://img30.360buyimg.com/popWareDetail/jfs/t1/158243/28/3900/164267/600535b8E7e09a5f0/6d40261d3fcc9223.jpg\" class=\"ELazy-loading\" src=\"//misc.360buyimg.com/lib/img/e/blank.gif\"><img data-lazyload=\"//img10.360buyimg.com/imgzone/jfs/t1/52688/12/10287/42281/5d777574E4d3e2af3/629b9e1a429a4d63.jpg\" style=\"width: auto; height: auto; max-width: 100%;\" class=\"ELazy-loading\" src=\"//misc.360buyimg.com/lib/img/e/blank.gif\"><br></p><p><br></p><br>"
+//    println(str2)
+//    println(str2
+//        .replace(Regex("\\s+src=\"\\S+?\""), "")
+//        .replace("class=\"ELazy-loading\"", "")
+//        .replace("data-lazyload", "src")
+//        )
+
+//    val str3 = "<p><img src=\"//img13.360buyimg.com/imgzone/jfs/t1/152220/31/14227/107152/5ffc3949E9bd21aba/95fd239894de25fc.jpg!q70.dpg.webp\" class=\"clicked\" loaded=\"11\" style=\"max-width: 640px;\"><img src=\"//img12.360buyimg.com/imgzone/jfs/t1/197237/1/11763/109093/615d0b25E0364d574/b1724652dddcc2e5.jpg!q70.dpg.webp\" loaded=\"10\" style=\"max-width: 640px;\"><img src=\"//img14.360buyimg.com/imgzone/jfs/t1/203841/13/9833/207405/615d0b1cEecb8685a/71d8a4698717d2a4.jpg!q70.dpg.webp\" loaded=\"9\" style=\"max-width: 640px;\"><img src=\"//img30.360buyimg.com/popWareDetail/jfs/t1/165498/24/761/145564/5ff26cd4Ed159ae45/7cefe7e9d7d99d39.jpg!q70.dpg.webp\" loaded=\"8\" style=\"max-width: 640px;\"><img src=\"//img30.360buyimg.com/popWareDetail/jfs/t1/161452/39/846/111642/5ff26cd7Eed398427/008f0f5fdb2c4a42.jpg!q70.dpg.webp\" loaded=\"7\" style=\"max-width: 640px;\"><img src=\"//img30.360buyimg.com/popWareDetail/jfs/t1/163543/4/824/180878/5ff26cdaEdacbe786/2da2057655f3307c.jpg!q70.dpg.webp\" loaded=\"6\" style=\"max-width: 640px;\"><img src=\"//img30.360buyimg.com/popWareDetail/jfs/t1/155180/40/12991/98143/5ff26cddE3577b69f/d1612aa05ad3edac.jpg!q70.dpg.webp\" loaded=\"5\" style=\"max-width: 640px;\"><img src=\"//img10.360buyimg.com/imgzone/jfs/t1/199099/17/11538/157982/615d0b21E35b0c41b/79399cadd5434b3f.jpg!q70.dpg.webp\" loaded=\"4\" style=\"max-width: 640px;\"><img src=\"//img20.360buyimg.com/imgzone/jfs/t1/202042/22/9975/153873/615d0b49E51a55752/037d153e251b2cfd.jpg!q70.dpg.webp\" loaded=\"3\" style=\"max-width: 640px;\"><img src=\"//img12.360buyimg.com/imgzone/jfs/t1/6603/31/16176/120589/615d0b38E5141ac91/aa338fcbb161dba6.jpg!q70.dpg.webp\" loaded=\"2\" style=\"max-width: 640px;\"><img src=\"//img14.360buyimg.com/imgzone/jfs/t1/123984/6/17964/126585/615d0b33Ea49e161b/dd02095f1bf085bb.jpg!q70.dpg.webp\" loaded=\"1\" style=\"max-width: 640px;\"></p><p><br></p>"
+//    println(str3.removeWebp())
 }
